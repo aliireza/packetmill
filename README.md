@@ -1,6 +1,10 @@
 # PacketMill: Toward per-core 100-Gbps Networking
 
-PacketMill is a system for optimizing software packet processing, which (i) introduces a new model ([X-Change][x-change-repo]) to efficiently manage packet metadata and (ii) employs code-optimization techniques to better utilize commodity hardware. PacketMill grinds the whole packet processing stack, from the high-level network function configuration file to the low-level userspace network (specifically Data Plane Development Kit or [DPDK][dpdk-page]) drivers, to mitigate inefficiencies and produce a customized binary for a given network function. 
+PacketMill is a system for optimizing software packet processing, which (i) introduces a new model ([X-Change][x-change-repo]) to efficiently manage packet metadata and (ii) employs code-optimization techniques to better utilize commodity hardware. PacketMill grinds the whole packet processing stack, from the high-level network function configuration file to the low-level userspace network (specifically Data Plane Development Kit or [DPDK][dpdk-page]) drivers, to mitigate inefficiencies and produce a customized binary for a given network function.
+
+<p align="center">
+<img src="PacketMill-logo.png"  alt="PacketMill" width="40%">
+</p>
 
 PacketMill is composed of three main components:
 
@@ -69,6 +73,14 @@ Fore more information, please check X-Change [repository][x-change-repo].
 
 ### LLVM Toolchain
 
+We have used `LLVM 10.0` in our paper. To install it, run the following command:
+
+```bash
+chmod +x llvm-clang.sh
+sudo ./llvm-clang.sh 10
+```
+
+This command will also create some links to different LLVM tools and clang commands. Check the script (`llvm-clang.sh`) for more details.
 
 
 ### LLVM Pass - Reordering Pass
