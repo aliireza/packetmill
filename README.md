@@ -26,7 +26,7 @@ We have developed/tested PacketMill for/on [FastClick][fastclick-repo], but our 
 We modified the MLX5 driver used by Mellanox NICs. However, X-Change is applicable to other drivers, as other (e.g., Intel) drivers are implemented similarly and have the same inefficiencies. Although we have only tested X-Change with FastClick, other DPDK-based packet processing frameworks (e.g., BESS and VPP) could equally benefit from X-Change, as our proposed model only modifies DPDK userspace drivers.
 
 
-### Code-optimizations
+### Code Optimizations
 
 We implemented our source-code optimizations on top of [click-devirtualize][devirtualize-paper], but it is possible to apply the same optimization to other packet processing frameworks such as BESS and VPP.
 
@@ -96,9 +96,11 @@ NPF automatically clone and build FastClick for the experiments (based on the te
 ```bash
 git clone git@github.com:tbarbette/fastclick.git
 cd fastclick
-CXX="clang++ -flto -fno-access-control" CC="clang -flto" CXXFLAGS="-std=gnu++14 -O3" LDFLAGS="-flto -fuse-ld=lld -Wl,-plugin-opt=save-temps" RANLIB="/bin/true" LD="ld.lld" READELF="llvm-readelf" AR="llvm-ar" --disable-bound-port-transfer --enable-dpdk-pool --enable-dpdk-xchg --disable-dpdk-packet
+./configure --disable-linuxmodule --enable-userlevel --enable-user-multithread --enable-etherswitch--disable-dynamic-linking --enable-local --enable-dpdk --enable-research --enable-gtp --disable-task-stats --enable-flow --disable-task-stats --enable-cpu-load --prefix $(pwd)/build/ --enable-intel-cpu RTE_SDK=/home/alireza/packetmill/xchange RTE_TARGET=x86_64-native-linux-clanglto CXX="clang++ -flto -fno-access-control" CC="clang -flto" CXXFLAGS="-std=gnu++14 -O3" LDFLAGS="-flto -fuse-ld=lld -Wl,-plugin-opt=save-temps" RANLIB="/bin/true" LD="ld.lld" READELF="llvm-readelf" AR="llvm-ar" --disable-bound-port-transfer --enable-dpdk-pool --enable-dpdk-xchg --disable-dpdk-packet
 make
 ```
+
+**Note: if you have already exported X-Change (or DPDK) environment variables, you do not need to pass `RTE_SDK` and/or `RTE_TARGET` in the configure line.**
 
 Building FastClick with this configuration uses X-Change by default, i.e., providing `Packet` class to DPDK PMD (MLX5). However, it is possible to use other metadata management techniques. The following list summarizes the required compilation flags for different metadata management models. 
 
