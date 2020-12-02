@@ -40,7 +40,7 @@ This repository contains information/source code to use PacketMill and reproduce
 
 The experiments are located at `experiments/`. The folder has a `Makefile` and `README.md` that can be used to run the experiments.
 
-**Note: Before running the experiments you need to prepare your testbed according to our following guidelines.**
+**Note: Before running the experiments, you need to prepare your testbed according to the following guidelines.**
 
 
 ## Testbed
@@ -49,7 +49,13 @@ Our experiments mainly requires `npf`, `X-Change`, `FastClick`, and `LLVM toolch
 
 ### Network Performance Framework (NPF) Tool
 
-You can clone and build NPF based on [guidelines][npf-setup] for our previous paper. Additionally, you can check the NPF README file.  
+You can install `npf` via the following command:
+
+```bash
+python3 -m pip install --user npf
+```
+
+NPF will look for `cluster/` and `repo/` in your current working/testie directory. We have included the required `repo` for our experiments and a sample `cluster` template. To setup your cluster, please check our [guidelines][npf-setup] for our previous paper. Additionally, you can check the [NPF README][npf-readme] file.
 
 ### X-Change
 
@@ -57,7 +63,7 @@ To build X-Change with clang and clang (LTO), you can run the following commands
 
 ```bash
 git clone git@github.com:tbarbette/xchange.git
-cd xchange/
+cd xchange
 make install T=x86_64-native-linux-clang
 make install T=x86_64-native-linux-clanglto
 ```
@@ -73,7 +79,7 @@ Fore more information, please check X-Change [repository][x-change-repo].
 
 ### LLVM Toolchain
 
-We have used `LLVM 10.0` in our paper. To install it, run the following command:
+We used `LLVM 10.0.0` in our paper. To install it, run the following command:
 
 ```bash
 chmod +x llvm-clang.sh
@@ -83,8 +89,107 @@ sudo ./llvm-clang.sh 10
 This command will also create some links to different LLVM tools and clang commands. Check the script (`llvm-clang.sh`) for more details.
 
 
+### FastClick
+
+NPF automatically clone and build FastClick for the experiments (based on the testie file), but if you want to compile/build it manually with X-Change repo. You can run the following commands:
+
+```bash
+git clone git@github.com:tbarbette/fastclick.git
+cd fastclick
+CXX="clang++ -flto -fno-access-control" CC="clang -flto" CXXFLAGS="-std=gnu++14 -O3" LDFLAGS="-flto -fuse-ld=lld -Wl,-plugin-opt=save-temps" RANLIB="/bin/true" LD="ld.lld" READELF="llvm-readelf" AR="llvm-ar" --disable-bound-port-transfer --enable-dpdk-pool --enable-dpdk-xchg --disable-dpdk-packet
+make
+```
+
+Building FastClick with this configuration uses X-Change by default, i.e., providing `Packet` class to DPDK PMD (MLX5). However, it is possible to use other metadata management techniques. The following list summarizes the required compilation flags for different metadata management models. 
+
+* **X-Change:** `--enable-dpdk-xchg --disable-dpdk-packet`
+* **Copying:** `--disable-dpdk-packet`
+* **Overlaying:** `--enable-dpdk-packet`
+
+For more information, please refer to PacketMill's [paper][packetmill-paper]. 
+
+
+### Binutils
+
+We used `bintuils 2.32`. To install/update bintuils, please refer to [here][binutils-page]
+
 ### LLVM Pass - Reordering Pass
 
+We developed an optimization pass (via LLVM) that reorders the variables/fields of the `Packet` [class][packet-header-fastclick] (i.e., the metadata structure in FastClick) based on the access pattern of the input binary. As our source-code modifications customizes the binary and removes the unused elements (source code), applying our pass together with other optimizations ultimately results in a customized data structure for the input NF configuration.
+
+Our pass parses the whole-program IR code produced by LTO (clang) to finds the references (done by the NF)
+to different variables/fields of the `Packet` class, sorts these variables based on the estimated number of accesses to the variables, and fixes (repairs) the references to the `Packet` class done by the LLVM’s GetElementPtrInst (GEPI) instruction.
+
+After applying the pass, the output IR code can be relinked with the dynamic libraries to produce a new binary for FastClick. 
+
+**Note that recompiling/relinking the IR code requires removing/striping module flags, we have a simple module pass that performs this task.**
+
+* **Building:** To compile our passes, run the following commands:
+
+```bash
+cd LLVM
+mkdir build
+cd build
+cmake ..
+make
+```
+
+* **Using:** Compiling FastClick & X-Change with LTO (clang) while using `plugin-opt=save-temps` flag produces four IR bitcode (i.e., whole-program IR code):
+
+```bash
+click.0.0.preopt.bc
+click.0.2.internalize.bc
+click.0.4.opt.bc
+click.0.5.precodegen.bc
+```
+
+or 
+
+```bash
+embedclick.0.0.preopt.bc
+embedclick.0.2.internalize.bc
+embedclick.0.4.opt.bc
+embedclick.0.5.precodegen.bc
+```
+
+You can use `llvm-dis` tool to convert them into human-readable LLVM assembly language. For example, try:
+
+```bash
+llvm-dis click.0.5.precodegen.bc -o click.ll
+```
+
+or
+
+```bash
+llvm-dis embedclick.0.5.precodegen.bc -o embedclick.ll
+``` 
+
+You can apply the passes on the `embedclick.ll` via the following commands:
+
+```bash
+cd /home/alireza/fastclick/userlevel/
+opt -S -load /home/alireza/packetmill/LLVM/build/class-stripmoduleflags-pass/libClassStripModuleFlagsPass.so -strip-module-flags click.ll -o click.ll
+opt -S -load /home/alireza/packetmill/LLVM/build/class-handpick-pass/libClassHandpickPass.so -handpick-packet-class click.ll -o click.ll
+opt -S -O3 click.ll -o click.ll
+make click-opt
+```
+
+or
+
+```bash
+cd /home/alireza/fastclick/userlevel/
+opt -S -load /home/alireza/packetmill/LLVM/build/class-stripmoduleflags-pass/libClassStripModuleFlagsPass.so -strip-module-flags embedclick.ll -o embedclick.ll
+opt -S -load /home/alireza/packetmill/LLVM/build/class-handpick-pass/libClassHandpickPass.so -handpick-packet-class embedclick.ll -o embedclick.ll
+opt -S -O3 embedclick.ll -o embedclick.ll
+make embedclick-opt
+```
+
+
+### Useful Information about writing LLVM Passes
+
+* Adrian Sampson blog post: http://www.cs.cornell.edu/~asampson/blog/llvm.html
+* Adrian Sampson Skeleton pass: https://github.com/sampsyo/llvm-pass-skeleton
+* Writing an LLVM Pass: https://llvm.org/docs/WritingAnLLVMPass.html
 
 
 ## Citing our paper
@@ -120,3 +225,6 @@ If you have any questions regarding our code or the paper, you can contact [Alir
 [devirtualize-paper]: https://pdos.csail.mit.edu/~rtm/papers/click-asplos02.pdf
 [ddio-testbed]: https://github.com/aliireza/ddio-bench/blob/master/TESTBED.md 
 [npf-setup]: https://github.com/aliireza/ddio-bench/blob/master/TESTBED.md#network-performance-framework-npf-tool
+[npf-readme]: https://github.com/tbarbette/npf/blob/master/README.md
+[binutils-page]: https://www.gnu.org/software/binutils/
+[packet-header-fastclick]: https://github.com/tbarbette/fastclick/blob/master/include/click/packet.hh
