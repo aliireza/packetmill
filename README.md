@@ -21,9 +21,9 @@ For more information, please refer to PacketMill's [paper][packetmill-paper].
 
 We have developed/tested PacketMill for/on [FastClick][fastclick-repo], but our techniques could be adapted to other packet processing frameworks.
 
-### X-Change
+### X-Change (Modified DPDK)
 
-We modified the MLX5 driver used by Mellanox NICs. However, X-Change is applicable to other drivers, as other (e.g., Intel) drivers are implemented similarly and have the same inefficiencies. Although we have only tested X-Change with FastClick, other DPDK-based packet processing frameworks (e.g., BESS and VPP) could equally benefit from X-Change, as our proposed model only modifies DPDK userspace drivers.
+We modified the `MLX5` PMD used by Mellanox NICs in DPDK. However, X-Change is applicable to other drivers, as other (e.g., Intel) drivers are implemented similarly and have the same inefficiencies. Although we have only tested X-Change with FastClick, other DPDK-based packet processing frameworks (e.g., BESS and VPP) could equally benefit from X-Change, as our proposed model only modifies DPDK userspace drivers.
 
 
 ### Code Optimizations
@@ -57,7 +57,7 @@ python3 -m pip install --user npf
 
 NPF will look for `cluster/` and `repo/` in your current working/testie directory. We have included the required `repo` for our experiments and a sample `cluster` template. To setup your cluster, please check our [guidelines][npf-setup] for our previous paper. Additionally, you can check the [NPF README][npf-readme] file.
 
-### X-Change
+### X-Change (Modified DPDK)
 
 To build X-Change with clang and clang (LTO), you can run the following commands:
 
@@ -66,14 +66,17 @@ git clone git@github.com:tbarbette/xchange.git
 cd xchange
 make install T=x86_64-native-linux-clang
 make install T=x86_64-native-linux-clanglto
+make install T=x86_64-native-linux-gcc
 ```
 
 After building X-Change, you have to define `RTE_SDK` and `RTE_TARGET`. To do so, run:
 
 ```bash
 export RTE_SDK=/home/alireza/packetmill/xchange/
-export RTE_TARGET=x86_64-native-linux-clanglto
+export RTE_TARGET=x86_64-native-linux-gcc
 ```
+
+**Note that `NPF` requires all three builds to perform the experiments. It uses `gcc` build for packet generation (i.e., default case) and the other two for other scenarios at the server side.**
 
 Fore more information, please check X-Change [repository][x-change-repo].
 
@@ -94,15 +97,15 @@ This command will also create some links to different LLVM tools and clang comma
 NPF automatically clone and build FastClick for the experiments (based on the testie file), but if you want to compile/build it manually with X-Change repo. You can run the following commands:
 
 ```bash
-git clone git@github.com:tbarbette/fastclick.git
+git clone --branch packetmill git@github.com:tbarbette/fastclick.git
 cd fastclick
-./configure --disable-linuxmodule --enable-userlevel --enable-user-multithread --enable-etherswitch--disable-dynamic-linking --enable-local --enable-dpdk --enable-research --enable-gtp --disable-task-stats --enable-flow --disable-task-stats --enable-cpu-load --prefix $(pwd)/build/ --enable-intel-cpu RTE_SDK=/home/alireza/packetmill/xchange RTE_TARGET=x86_64-native-linux-clanglto CXX="clang++ -flto -fno-access-control" CC="clang -flto" CXXFLAGS="-std=gnu++14 -O3" LDFLAGS="-flto -fuse-ld=lld -Wl,-plugin-opt=save-temps" RANLIB="/bin/true" LD="ld.lld" READELF="llvm-readelf" AR="llvm-ar" --disable-bound-port-transfer --enable-dpdk-pool --enable-dpdk-xchg --disable-dpdk-packet
+./configure --disable-linuxmodule --enable-userlevel --enable-user-multithread --enable-etherswitch --disable-dynamic-linking --enable-local --enable-dpdk --enable-research --enable-gtp --disable-task-stats --enable-flow --disable-task-stats --enable-cpu-load --prefix $(pwd)/build/ --enable-intel-cpu RTE_SDK=/home/alireza/packetmill/xchange RTE_TARGET=x86_64-native-linux-clanglto CXX="clang++ -flto -fno-access-control" CC="clang -flto" CXXFLAGS="-std=gnu++14 -O3" LDFLAGS="-flto -fuse-ld=lld -Wl,-plugin-opt=save-temps" RANLIB="/bin/true" LD="ld.lld" READELF="llvm-readelf" AR="llvm-ar" --disable-bound-port-transfer --enable-dpdk-pool --enable-dpdk-xchg --disable-dpdk-packet
 make
 ```
 
 **Note: if you have already exported X-Change (or DPDK) environment variables, you do not need to pass `RTE_SDK` and/or `RTE_TARGET` in the configure line.**
 
-Building FastClick with this configuration uses X-Change by default, i.e., providing `Packet` class to DPDK PMD (MLX5). However, it is possible to use other metadata management techniques. The following list summarizes the required compilation flags for different metadata management models. 
+Building FastClick with this configuration uses X-Change by default, i.e., providing `Packet` class to DPDK PMD (`MLX5`). However, it is possible to use other metadata management techniques. The following list summarizes the required compilation flags for different metadata management models. 
 
 * **X-Change:** `--enable-dpdk-xchg --disable-dpdk-packet`
 * **Copying:** `--disable-dpdk-packet`
