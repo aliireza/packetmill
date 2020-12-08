@@ -94,13 +94,21 @@ This command will also create some links to different LLVM tools and clang comma
 
 ### FastClick
 
-NPF automatically clone and build FastClick for the experiments (based on the testie file), but if you want to compile/build it manually with X-Change repo. You can run the following commands:
+NPF automatically clone and build FastClick for the experiments (based on the testie/npf file), but if you want to compile/build it manually with X-Change repo. You can run the following commands:
 
 ```bash
 git clone --branch packetmill git@github.com:tbarbette/fastclick.git
 cd fastclick
 ./configure --disable-linuxmodule --enable-userlevel --enable-user-multithread --enable-etherswitch --disable-dynamic-linking --enable-local --enable-dpdk --enable-research --enable-gtp --disable-task-stats --enable-flow --disable-task-stats --enable-cpu-load --prefix $(pwd)/build/ --enable-intel-cpu RTE_SDK=/home/alireza/packetmill/xchange RTE_TARGET=x86_64-native-linux-clanglto CXX="clang++ -flto -fno-access-control" CC="clang -flto" CXXFLAGS="-std=gnu++14 -O3" LDFLAGS="-flto -fuse-ld=lld -Wl,-plugin-opt=save-temps" RANLIB="/bin/true" LD="ld.lld" READELF="llvm-readelf" AR="llvm-ar" --disable-bound-port-transfer --enable-dpdk-pool --enable-dpdk-xchg --disable-dpdk-packet
 make
+sudo make uninstall
+sudo make install
+```
+
+`make install` requires some perl packages. For instance, you might need to run the following command if `make install` fails.
+
+```bash
+sudo cpan File::Which
 ```
 
 **Note: if you have already exported X-Change (or DPDK) environment variables, you do not need to pass `RTE_SDK` and/or `RTE_TARGET` in the configure line.**
