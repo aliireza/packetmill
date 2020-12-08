@@ -1,0 +1,11 @@
+#Address for connection
+addr=<IP>
+
+arch=skylake
+
+0:mac=<MAC>
+0:ip=<IP>>
+0:ifname=<interface-name>
+0:pci=<pci-bus>
+
+
