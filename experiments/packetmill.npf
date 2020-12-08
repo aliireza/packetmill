@@ -177,7 +177,6 @@ clickopt:JMPS=0
 
 // LLVM pass for embedclick binary
 
-
 deviropt:REPLACE=0
 deviropt:DEVIRTUALIZE=1
 deviropt:INLINE=0
@@ -192,6 +191,7 @@ deviropt:UNROLL_FACTOR=0
 deviropt:SWITCH=0
 deviropt:JMPS=0
 
+// Pass the gdb tags to run packetmill/click under gdb and see where things go bad
 gdb:GDB=gdb -ex run -ex "signal 2" -ex bt -batch -args
 
 // Pick main NF (router or forwarding)
@@ -234,6 +234,12 @@ vlan:SETVLAN=-> VLANEncap(VLAN_TCI ANNO, VLAN_PCP 0)
 
 FD?=$(( "FromDPDKDeviceXCHG" if $XCHG else "FromDPDKDevice" ))
 TD?=$(( "ToDPDKDeviceXCHG" if $XCHG else "ToDPDKDevice" ))
+
+//Variables supposed to be overriden:
+DUT_PMU_PATH=
+XCHG_PATH=
+EXP_PATH=
+LLVM_PASS_PATH=
 
 %require
 command -v opt &> /dev/null || ( echo "opt command not found!" && exit1 )
