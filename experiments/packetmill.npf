@@ -1,0 +1,720 @@
+%info
+Running the experiments for PacketMill paper
+
+Copyright (c) 2020, Tom Barbette, KTH Royal Institute of Technology - All Rights Reserved
+Copyright (c) 2020, Alireza Farshin, KTH Royal Institute of Technology - All Rights Reserved
+
+%config
+timeout=600
+
+accept_zero={EL.*,EL}
+
+%variables
+
+// Number of CPU cores and Burst Size
+CPU=1
+DPDK_CPU=1
+BURST=32
+
+// Default configurations for Compilation
+
+REPLACE=1
+DEVIRTUALIZE=1
+INLINE=1
+EMBED=1
+MINDRIVER=1
+OPT=0
+STATIC=1
+OPT_STRIP=0
+OPT_PICK=0
+TIMING=0
+XCHG=0
+ALIGN=0
+ALIGN_SIZE=0
+RAND_SEED=0
+RAND_MAX=0
+ids:CHKSUM=0
+
+// Multicore variables
+scaling:DPDK_CPU={1,2,3,4}
+
+// Alignment pass variables (for testing/debugging)
+
+align:ALIGN=1
+align:ALIGN_SIZE=[0*256]
+
+// WorkPackage variables
+
+wp:WP_S={0,4,8,12,16,20}
+wp:WP_W={0,4,8,12,16,20}
+wp:WP_N=5
+
+// Frequency 
+
+FREQ=2300
+UNCORE_FREQ=24 // min is 12 (1.2GHz) and max is 24 (2.4GHz)
+freqtune:FREQ={1200,1400,1600,1800,2000,2200,2400,2600,2800,3000}
+
+// RX and TX descriptors + Blocking mode (generating traffic)
+RXDESC=1024
+TXDESC=1024
+BLOCKING=true
+CLEAR=0
+
+// DDIO configuration
+ddio_value=0x7F8 // 8 bits - default is 0x600 (2 bits)
+uncoretune:UNCORE_FREQ={12,14,16,18,20,22,24}
+
+
+// Rate variables (TIMING)
+ratetune:TIMING={200,400,600,800,1000,1200,1400,1500,1600,1700,1800,1900,2000,2100,2200,0} // for normal trace
+ratetune:FREQ=2300
+
+// Default UDP packet size
+
+GEN_LENGTH=64
+
+// PASUE frames 
+PAUSE=none
+tunepause:PAUSE={none,full}
+
+// Dual NIC experiment variables
+dualNIC=0
+dual:dualNIC=1
+dual:FREQ=2300
+dual:DPDK_CPU={1,2}
+
+// X-Change configuration (can be combined with others)
+
+xchg:XCHG=1
+
+// Vanilla configuration (No optimization)
+
+vanilla:REPLACE=0
+vanilla:DEVIRTUALIZE=0
+vanilla:INLINE=0
+vanilla:EMBED=0
+vanilla:MINDRIVER=0
+vanilla:OPT=0
+vanilla:STATIC=0
+vanilla:UNROLL=0
+vanilla:UNROLL_FACTOR=0
+vanilla:SWITCH=0
+vanilla:JMPS=0
+
+// Devirtualize configuration
+
+
+devir:REPLACE=0
+devir:DEVIRTUALIZE=1
+devir:INLINE=0
+devir:EMBED=1
+devir:MINDRIVER=1
+devir:OPT=0
+devir:STATIC=0
+devir:UNROLL=0
+devir:UNROLL_FACTOR=0
+devir:SWITCH=0
+devir:JMPS=0
+
+// Embedding Costants configuration (--replace pass)
+
+constants:REPLACE=1
+constants:DEVIRTUALIZE=1
+constants:INLINE=0
+constants:EMBED=1
+constants:MINDRIVER=1
+constants:OPT=0
+constants:STATIC=0
+constants:UNROLL=0
+constants:UNROLL_FACTOR=0
+constants:SWITCH=0
+constants:JMPS=0
+
+// Embedding graph configuration (--static pass)
+
+graph:REPLACE=0
+graph:DEVIRTUALIZE=1
+graph:INLINE=0
+graph:EMBED=1
+graph:MINDRIVER=1
+graph:OPT=0
+graph:STATIC=1
+graph:UNROLL=0
+graph:UNROLL_FACTOR=0
+graph:SWITCH=0
+graph:JMPS=0
+
+// All optimizations configuration (--replace --static --inline pass)
+
+embedding:REPLACE=1
+embedding:DEVIRTUALIZE=1
+embedding:INLINE=1
+embedding:EMBED=1
+embedding:MINDRIVER=1
+embedding:OPT=0
+embedding:STATIC=1
+embedding:UNROLL=0
+embedding:UNROLL_FACTOR=0
+embedding:SWITCH=0
+embedding:JMPS=0
+
+// LLVM pass for click binary
+
+clickopt:REPLACE=0
+clickopt:DEVIRTUALIZE=0
+clickopt:INLINE=0
+clickopt:EMBED=0
+clickopt:MINDRIVER=0
+clickopt:OPT=1
+clickopt:OPT_PICK=1
+clickopt:OPT_STRIP=1
+clickopt:STATIC=0
+clickopt:UNROLL=0
+clickopt:UNROLL_FACTOR=0
+clickopt:SWITCH=0
+clickopt:JMPS=0
+
+// LLVM pass for embedclick binary
+
+
+deviropt:REPLACE=0
+deviropt:DEVIRTUALIZE=1
+deviropt:INLINE=0
+deviropt:EMBED=1
+deviropt:MINDRIVER=1
+deviropt:OPT=1
+deviropt:OPT_PICK=1
+deviropt:OPT_STRIP=1
+deviropt:STATIC=0
+deviropt:UNROLL=0
+deviropt:UNROLL_FACTOR=0
+deviropt:SWITCH=0
+deviropt:JMPS=0
+
+gdb:GDB=gdb -ex run -ex "signal 2" -ex bt -batch -args
+
+// Pick main NF (router or forwarding)
+fwd:FNT=Fwd
+router:FNT=Router
+noinline:NOINLINE=1
+
+// NAT configuration
+
+nat:NAT=1
+nat:NAT_CAPA=10000000
+vlan:VLAN=1
+ids:IDS=1
+
+
+// Perf variables
+PERF_INTERVAL=100
+PERF_OUTPUT=perf.csv
+PERF_CORE=0 // For profiling
+PERF_RUN_CORE=2 // For running the profiler
+
+%late_variables
+
+scaling:CPU=EXPAND($DPDK_CPU)
+
+WP=
+wp:WP=EXPAND( -> WorkPackage(S $WP_S, N $WP_N, R 0, PAYLOAD false, W $WP_W) )
+
+PERF_EVENTS=branches,branch-misses,cache-references,cache-misses,cycles,instructions,L1-dcache-load-misses,L1-dcache-loads,L1-dcache-stores,L1-icache-load-misses,LLC-load-misses,LLC-loads,LLC-stores,LLC-store-misses  //Add new events here
+
+novec:MLX_OPT?=,rx_vec_en=0
+noinline:MLX_OPT+=,rxq_cqe_comp_en=0,mprq_en=0,txq_inline_max=0
+GDB?=
+
+INITVLAN=
+SETVLAN=
+
+vlan:INITVLAN=-> SetVLANAnno(0)
+vlan:SETVLAN=-> VLANEncap(VLAN_TCI ANNO, VLAN_PCP 0)
+
+FD?=$(( "FromDPDKDeviceXCHG" if $XCHG else "FromDPDKDevice" ))
+TD?=$(( "ToDPDKDeviceXCHG" if $XCHG else "ToDPDKDevice" ))
+
+%require
+command -v opt &> /dev/null || ( echo "opt command not found!" && exit1 )
+
+%require
+test $STATIC -le $EMBED
+test $STATIC -le $DEVIRTUALIZE
+test $INLINE -le $DEVIRTUALIZE
+//test $OPT -le $EMBED
+
+%-noperf:script@dut sudo=true name=profiler autokill=false waitfor=GEN_BEGIN delay=0
+
+// Run Perf 
+bash perf.sh
+
+%script@dut sudo=true name=perf-parser autokill=true waitfor=GEN_DONE delay=0
+
+// Processing Perf output
+echo "Launching Perf script"
+bash perf-processing.sh $PERF_OUTPUT
+
+
+%file@dut perf.sh
+
+#============================================================================================#
+# perf.sh : Script to launch Perf
+#============================================================================================#
+
+echo "Launching Perf"
+taskset -c $PERF_RUN_CORE perf stat -x\, -I $PERF_INTERVAL -e $PERF_EVENTS -C $PERF_CORE -o $PERF_OUTPUT sleep 1000
+
+#============================================================================================#
+
+
+%-noperf:file@dut perf-processing.sh
+
+#====================================================s========================================#
+# perf-processing.sh : Script to process Perf output to get performance bottlenecks
+#============================================================================================#
+
+input_file=$1
+
+# Create Event list
+events="$PERF_EVENTS"
+events_num=`echo $events | tr , "\n" | wc -l`
+event_list=(`echo "\"RESULT-Timestamp\""` `echo $events | tr , "\n" | awk '{print "RESULT-"$1}' | paste -s -d" " -`)
+
+# Event list: Will be updated automatically - Compare with tmp-perf.csv header if changing PERF_EVENTS
+column_name=("${event_list[@]}")
+column=$(seq 0 $events_num)
+
+# Kill Perf
+killall perf
+
+# Remove the last line (uncomplete)
+sed -i '$ d' $input_file
+
+# Convert the CSV to a better format via interval-normalize.py
+${DUT_PMU_PATH}/interval-normalize.py --na 0 $input_file -o tmp-perf.csv
+
+# Print the results
+
+for col in $column;do 
+    # Average Value
+    result=`cat tmp-perf.csv\
+    | awk -F, -v awkcol=\$(($col + 1)) '{if (NR!=1) print $awkcol;}'\
+    | awk '{ total +=$1;count++;} END{print total/count}'`
+    echo ${column_name[$col]}"-avg-C"$PERF_CORE" "$result
+done
+
+rm -f $input_file
+mv tmp-perf.csv $EXP_PATH/perf-normalized.csv
+
+
+#============================================================================================#
+
+
+%dual:import@client2 fastclick-replay-single-mt2 trace=/mnt/20190507.morning.merged.ip.anon.nopayload.pcap waitfor=COMPILED TIMING=$TIMING LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false
+%-udp:import@client fastclick-replay-single-mt trace=/mnt/traces/merged.transformed.pcap waitfor=COMPILED TIMING=$TIMING LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false
+%udp:import@client fastclick-udpgen-latency-single delay=5 waitfor=COMPILED LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false GEN_THREADS=4 GEN_LENGTH=$GEN_LENGTH
+
+
+%ids:file@dut IDS
+elementclass IDS {
+    [0]
+    -> CheckIPHeader(OFFSET 14, CHECKSUM false)
+    -> ipc :: IPClassifier(tcp,udp,icmp,-);
+
+    ipc[0]
+        -> CheckTCPHeader(CHECKSUM $CHKSUM)
+        -> output;
+
+    ipc[1]
+        -> CheckUDPHeader(CHECKSUM $CHKSUM)
+        -> output;
+
+    ipc[2]
+        -> CheckICMPHeader()
+        -> output;
+
+    ipc[3]
+        -> output;
+}
+
+%-ids:file@dut IDS
+elementclass IDS {
+    [0] -> [0]
+}
+%nat:file@dut NAT
+elementclass NAT {
+    [0]
+    -> FlowIPManagerIMP(CAPACITY $NAT_CAPA)
+    -> FlowIPNAT(SIP 10.0.0.1)
+    -> FlowCounter
+    ->  [0]
+}
+
+%-nat:file@dut NAT
+elementclass NAT {
+    [0] -> [0]
+}
+
+%fwd:file@dut FNT
+elementclass FNT { [0]
+    -> EtherRewrite(SRC ${dut:0:mac}, DST ${client:0:mac})
+    -> [0] }
+
+%fwd:file@dut FNT2
+elementclass FNT2 { [0]
+    -> EtherRewrite(SRC ${dut:2:mac}, DST ${client2:0:mac})
+    -> [0] }
+
+%router:file@dut FNT
+    define ($MTU 1500)
+    define ($ip 10.0.0.1)
+    define ($eth ${dut:0:mac})
+elementclass FNT { 
+    tol :: Discard(); //ToHost normally
+
+input[0] ->
+            c0 :: Classifier(    12/0806 20/0001,
+                                 12/0806 20/0002,
+                                 12/0800,
+                                 -);
+
+        // Respond to ARP Query
+        c0[0] -> arpress :: ARPResponder($ip $eth);
+        arpress[0] -> Print("ARP QUERY") -> [0]output;
+
+        // Deliver ARP responses to ARP queriers as well as Linux.
+        t :: Tee(2);
+        c0[1] -> t;
+        t[0] -> Print("Input to linux") -> tol; //To linux
+        t[1] -> Print("Arp response") -> [0]output; //Directly output
+
+  
+        // Unknown ethernet type numbers.
+        c0[3] -> Print() -> Discard();
+
+        
+    // An "ARP querier" for each interface.
+    arpq0 :: EtherEncap(0x0800, ${dut:0:mac}, ${client:0:mac});
+    // Connect ARP outputs to the interface queues.
+    arpq0 -> [0]output;
+
+    // IP routing table.
+    rt :: LookupIPRouteMP(   0.0.0.0/0 0);
+
+    // Hand incoming IP packets to the routing table.
+    // CheckIPHeader checks all the lengths and length fields
+    // for sanity.
+    ip ::
+
+    Strip(14)
+    -> CheckIPHeader(CHECKSUM false, VERBOSE false)
+    -> [0]rt;
+
+    oerror :: IPPrint("ICMP Error : DF") -> [0]rt;
+    ttlerror :: IPPrint("ICMP Error : TTL") -> [0]rt;
+    //rederror :: IPPrint("ICMP Error : Redirect") -> [0]rt;
+
+
+    c0[2] -> Paint(1) -> ip;
+    rt[0] -> output0 :: IPOutputCombo(2, 10.1.0.1, $MTU);
+    // DecIPTTL[1] emits packets with expired TTLs.
+    // Reply with ICMPs. Rate-limit them?
+    output0[3] -> ICMPError(10.1.0.1, timeexceeded, SET_FIX_ANNO 0) -> ttlerror;
+    // Send back ICMP UNREACH/NEEDFRAG messages on big packets with DF set.
+    // This makes path mtu discovery work.
+    output0[4] -> ICMPError(10.1.0.1, unreachable, needfrag, SET_FIX_ANNO 0) -> oerror;
+    // Send back ICMP Parameter Problem messages for badly formed
+    // IP options. Should set the code to point to the
+    // bad byte, but that's too hard.
+    output0[2] -> ICMPError(10.1.0.1, parameterproblem, SET_FIX_ANNO 0) -> oerror;
+    // Send back an ICMP redirect if required.
+    output0[1] -> ICMPError(10.1.0.1, redirect, host, SET_FIX_ANNO 0) -> IPPrint("ICMP Error : Redirect") -> arpq0;
+    output0[0]
+    $WP
+    -> NAT()
+    -> arpq0;
+}
+
+
+%router:file@dut FNT2
+    define ($MTU2 1500)
+    define ($ip2 10.0.0.2)
+    define ($eth2 ${dut:2:mac})
+elementclass FNT2 { 
+    tol :: Discard(); //ToHost normally
+
+input[0] ->
+            c0 :: Classifier(    12/0806 20/0001,
+                                 12/0806 20/0002,
+                                 12/0800,
+                                 -);
+
+        // Respond to ARP Query
+        c0[0] -> arpress :: ARPResponder($ip2 $eth2);
+        arpress[0] -> Print("ARP QUERY") -> [0]output;
+
+        // Deliver ARP responses to ARP queriers as well as Linux.
+        t :: Tee(2);
+        c0[1] -> t;
+        t[0] -> Print("Input to linux") -> tol; //To linux
+        t[1] -> Print("Arp response") -> [0]output; //Directly output
+
+  
+        // Unknown ethernet type numbers.
+        c0[3] -> Print() -> Discard();
+
+        
+    // An "ARP querier" for each interface.
+    arpq0 :: EtherEncap(0x0800, ${dut:2:mac}, ${client2:0:mac});
+    // Connect ARP outputs to the interface queues.
+    arpq0 -> [0]output;
+
+    // IP routing table.
+    rt :: LookupIPRouteMP(   0.0.0.0/0 0);
+
+    // Hand incoming IP packets to the routing table.
+    // CheckIPHeader checks all the lengths and length fields
+    // for sanity.
+    ip ::
+
+    Strip(14)
+    -> CheckIPHeader(CHECKSUM false, VERBOSE false)
+    -> [0]rt;
+
+    oerror :: IPPrint("ICMP Error : DF") -> [0]rt;
+    ttlerror :: IPPrint("ICMP Error : TTL") -> [0]rt;
+    //rederror :: IPPrint("ICMP Error : Redirect") -> [0]rt;
+
+
+    c0[2] -> Paint(1) -> ip;
+    rt[0] -> output0 :: IPOutputCombo(2, 10.1.0.1, $MTU2);
+    // DecIPTTL[1] emits packets with expired TTLs.
+    // Reply with ICMPs. Rate-limit them?
+    output0[3] -> ICMPError(10.1.0.1, timeexceeded, SET_FIX_ANNO 0) -> ttlerror;
+    // Send back ICMP UNREACH/NEEDFRAG messages on big packets with DF set.
+    // This makes path mtu discovery work.
+    output0[4] -> ICMPError(10.1.0.1, unreachable, needfrag, SET_FIX_ANNO 0) -> oerror;
+    // Send back ICMP Parameter Problem messages for badly formed
+    // IP options. Should set the code to point to the
+    // bad byte, but that's too hard.
+    output0[2] -> ICMPError(10.1.0.1, parameterproblem, SET_FIX_ANNO 0) -> oerror;
+    // Send back an ICMP redirect if required.
+    output0[1] -> ICMPError(10.1.0.1, redirect, host, SET_FIX_ANNO 0) -> IPPrint("ICMP Error : Redirect") -> arpq0;
+    output0[0]
+    $WP
+    -> NAT()
+    -> arpq0;
+}
+
+%script@dut sudo=true
+
+// Setting RAND
+export CLICK_ELEM_RAND_SEED=$RAND_SEED
+export CLICK_ELEM_RAND_MAX=$RAND_MAX
+
+sudo cpupower frequency-set -d 1200M -u 3700M
+
+echo "" > CONFIGBASE
+cat IDS >> CONFIGBASE
+cat NAT >> CONFIGBASE
+cat FNT >> CONFIGBASE
+if [ $dualNIC -eq 1 ] ; then
+    cat FNT2 >> CONFIGBASE
+fi
+cat MCONFIG >> CONFIGBASE
+
+FASTCLICK_BIN_PATH=$(which click)
+echo "Bin path is $FASTCLICK_BIN_PATH"
+FASTCLICK_PATH=$(realpath $(dirname $FASTCLICK_BIN_PATH)/../)
+
+echo "Click path is $FASTCLICK_PATH"
+
+BIN=click
+
+if [ $DEVIRTUALIZE -eq 1 ] ; then
+    pushd ${FASTCLICK_PATH}
+        sudo make clean-embed
+        echo "Uninstalling.."
+        sudo make uninstall &> /dev/null
+        git checkout doc
+        sudo make install
+    popd
+fi
+
+if [ $DEVIRTUALIZE -eq 1 ] ; then
+    TINLINE=
+    TSTATIC=
+    TREPLACE=
+    TUNROLL=
+    TSWITCH=
+    TJMPS=
+    TALIGN=
+    if [ $INLINE -eq 1 ] ; then
+        TINLINE=--inline
+        echo "Enabling Inline Pass"
+    fi
+    if [ $STATIC -eq 1 ] ; then
+        TSTATIC=--static
+        echo "Enabling Static Pass"
+    fi
+    if [ $REPLACE -eq 1 ] ; then
+        TREPLACE=--replace
+        echo "Enabling Replace Pass"
+    fi
+    if [ $UNROLL -eq 1 ] ; then
+        TUNROLL=--unroll
+        TUNROLL+=" "
+        TUNROLL+=$UNROLL_FACTOR
+        echo "Enabling Unroll Pass"
+    fi
+    if [ $SWITCH -eq 1 ] ; then
+        TSWITCH=--switch
+        TSWITCH+=" "
+        TSWITCH+=$BURST
+        echo "Enabling Switch Pass"
+    fi
+    if [ $JMPS -eq 1 ] ; then
+        TJMPS=--jmps
+        TJMPS+=" "
+        TJMPS+=$BURST
+        echo "Enabling JMP Pass"
+    fi
+    if [ $ALIGN -eq 1 ] ; then
+        TALIGN=--alignas
+        TALIGN+=" "
+        TALIGN+=$ALIGN_SIZE
+        echo "Enabling alignas Pass"
+    fi
+    ${FASTCLICK_PATH}/bin/click-devirtualize CONFIGBASE $TREPLACE $TSTATIC $TINLINE $TUNROLL $TSWITCH $TJMPS $TALIGN > package.uo
+    ar x package.uo config
+    cp config CONFIGDEV
+    CFGN=package.uo
+    CFG=CONFIGDEV
+else
+    CFGN=CONFIGBASE
+    CFG=CONFIGBASE
+fi
+
+if [ $MINDRIVER -eq 1 ] ; then
+    echo "Making click-embed in $(pwd)"
+    BIN=embedclick
+    if [ $EMBED -eq 1 ] ; then
+        cat CONFIGDEV | tail -n +2 > C
+        cp C CONFIGDEV
+        SHIP=--ship
+    else
+        SHIP=
+    fi
+    sp=$(pwd)
+    pushd ${FASTCLICK_PATH}/userlevel/
+    ${FASTCLICK_PATH}/bin/click-mkmindriver -V -C ${FASTCLICK_PATH} -p embed $SHIP -u $sp/$CFGN || exit 1
+    echo "Building embedded binary..."
+    make ${BIN} MINDRIVER=embed STATIC=$STATIC V=1 || exit 1
+    popd
+fi
+
+if [ $OPT -eq 1 ] ; then
+    echo "Making LLVM pass..."
+    pushd ${FASTCLICK_PATH}
+    pushd userlevel
+    llvm-dis ${BIN}.0.5.precodegen.bc -o ${BIN}.ll
+    if [ $OPT_STRIP -eq 1 ] ; then
+        opt -S -load ${LLVM_PASS_PATH}/build/class-stripmoduleflags-pass/libClassStripModuleFlagsPass.so -strip-module-flags ${BIN}.ll -o ${BIN}.ll
+    fi
+    if [ $OPT_PICK -eq 1 ] ; then
+        opt -S -load ${LLVM_PASS_PATH}/build/class-handpick-pass/libClassHandpickPass.so -handpick-packet-class ${BIN}.ll -o ${BIN}.ll
+    fi
+    opt -S -O3 ${BIN}.ll -o ${BIN}.ll
+    if [ $EMBED -eq 1 ] ; then
+        make embedclick-opt STATIC=$STATIC V=1
+        BIN=embedclick-opt
+    else
+        make click-opt STATIC=$STATIC V=1
+        BIN=click-opt
+    fi
+    popd
+    popd
+fi
+
+echo "EVENT COMPILED"
+// Set processor frequency
+sudo cpupower frequency-set -d ${FREQ}M -u ${FREQ}M
+
+// Enabling MSR
+modprobe msr 
+
+// Set uncore frequency
+uncore_value=$(( ($UNCORE_FREQ << 8 ) +  $UNCORE_FREQ))
+echo "Setting Uncore Frequency to $(( $UNCORE_FREQ / 10))GHz"
+printf 'Setting UNCORE_RATIO_LIMIT to 0x%x\n' $uncore_value
+wrmsr 0x620 $uncore_value
+
+// Setting DDIO WAYS
+wrmsr 0xC8B $ddio_value
+
+// Setting RAND
+export CLICK_ELEM_RAND_SEED=$RAND_SEED
+export CLICK_ELEM_RAND_MAX=$RAND_MAX
+
+// Setting RTE_SDK
+export RTE_SDK=$XCHG_PATH
+
+echo "Launching $BIN at ${FASTCLICK_PATH} with config $CFG in $(pwd)"
+$GDB ${FASTCLICK_PATH}/userlevel/$BIN --dpdk -w ${dut:0:pci}${MLX_OPT} -w ${dut:2:pci}${MLX_OPT} -l 0-$(( $DPDK_CPU - 1 )) -- $CFG
+
+
+%require
+test $MINDRIVER -eq 1 || test $EMBED -eq 0
+
+//%opt:require
+//test $LLVM -eq 1
+
+%file@dut MCONFIG
+//DPDKInfo(MBUF_CACHE_SIZE $MCACHE)
+
+fd0 :: $FD(0, MAXTHREADS $CPU , BURST $BURST , TIMESTAMP false, PAUSE $PAUSE, CLEAR $CLEAR, NDESC $RXDESC)
+    $INITVLAN
+    -> IDS()
+//    -> SetCycleCount()
+    -> FNT()
+//    -> accum :: CycleCountAccum()
+    $SETVLAN
+    -> $TD(${dut:0:pci}, NDESC $TXDESC, BLOCKING $BLOCKING)
+
+DriverManager(  wait,
+  //              print "RESULT-CYCLEPP $(accum.cycles_pp)",
+                //read fd0.xstats,
+                )
+
+%dual:file@dut MCONFIG
+fd0 :: $FD(${dut:0:pci}, MAXTHREADS $CPU , BURST $BURST , TIMESTAMP false, PAUSE $PAUSE, CLEAR $CLEAR, NDESC $RXDESC)
+fd1 :: $FD(${dut:2:pci}, MAXTHREADS $CPU , BURST $BURST , TIMESTAMP false, PAUSE $PAUSE, CLEAR $CLEAR, NDESC $RXDESC)
+td0 :: $TD(${dut:0:pci}, NDESC $TXDESC, BLOCKING $BLOCKING)
+td1 :: $TD(${dut:2:pci}, NDESC $TXDESC, BLOCKING $BLOCKING)
+
+ids1 :: IDS()
+ids2 :: IDS()
+
+   fd0 
+    $INITVLAN
+    -> ids1
+//    -> SetCycleCount()
+    -> FNT()
+//    -> accum :: CycleCountAccum()
+    $SETVLAN
+    -> td0
+
+   fd1
+    $INITVLAN
+    -> ids2
+//    -> SetCycleCount()
+    -> FNT2()
+//    -> accum :: CycleCountAccum()
+    $SETVLAN
+    -> td1
+
+DriverManager(  wait,
+  //              print "RESULT-CYCLEPP $(accum.cycles_pp)",
+                //read fd0.xstats,
+                )
