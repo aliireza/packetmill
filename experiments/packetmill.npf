@@ -213,6 +213,12 @@ PERF_OUTPUT=perf.csv
 PERF_CORE=0 // For profiling
 PERF_RUN_CORE=2 // For running the profiler
 
+//Variables supposed to be overriden (we do this to avoid the overriden message):
+DUT_PMU_PATH=
+XCHG_PATH=
+EXP_PATH=
+LLVM_PASS_PATH=
+
 %late_variables
 
 scaling:CPU=EXPAND($DPDK_CPU)
@@ -234,12 +240,6 @@ vlan:SETVLAN=-> VLANEncap(VLAN_TCI ANNO, VLAN_PCP 0)
 
 FD?=$(( "FromDPDKDeviceXCHG" if $XCHG else "FromDPDKDevice" ))
 TD?=$(( "ToDPDKDeviceXCHG" if $XCHG else "ToDPDKDevice" ))
-
-//Variables supposed to be overriden:
-DUT_PMU_PATH=
-XCHG_PATH=
-EXP_PATH=
-LLVM_PASS_PATH=
 
 %require
 command -v opt &> /dev/null || ( echo "opt command not found!" && exit1 )
