@@ -111,7 +111,7 @@ sudo make install
 sudo cpan File::Which
 ```
 
-**Note: if you have already exported X-Change (or DPDK) environment variables, you do not need to pass `RTE_SDK` and/or `RTE_TARGET` in the configure line. However `--enable-dpdk=$RTE_SDK` is mandatory if you have a globally installed DPDK (e.g. using apt or ninja install) and force using the right DPDK. **
+**Note: if you have already exported X-Change (or DPDK) environment variables, you do not need to pass `RTE_SDK` and/or `RTE_TARGET` in the configure line. However, using `--enable-dpdk=$RTE_SDK` is mandatory if you have a globally installed DPDK (e.g. using apt or ninja install); it forces FastClick to use the right DPDK (e.g., X-Change).**
 
 Building FastClick with this configuration uses X-Change by default, i.e., providing `Packet` class to DPDK PMD (`MLX5`). However, it is possible to use other metadata management techniques. The following list summarizes the required compilation flags for different metadata management models. 
 
