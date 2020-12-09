@@ -13,10 +13,10 @@ NPF_FLAGS= --show-full --build-folder ./npf_build/ --force-retest ${NPF_OUTPUT} 
 
 # Tools path 
 TOOLS_PATH := 
-TOOLS_PATH += DUT_PMU_PATH=$(CURDIR)/pmu-tools # PMU Tools
-TOOLS_PATH += XCHG_PATH=$(CURDIR)/xchange # X-Change (DPDK)
+TOOLS_PATH += DUT_PMU_PATH=$(CURDIR)/../pmu-tools # PMU Tools
+TOOLS_PATH += XCHG_PATH=$(CURDIR)/../xchange # X-Change (DPDK)
 TOOLS_PATH += EXP_PATH=$(CURDIR) # Current Directory
-TOOLS_PATH += LLVM_PASS_PATH=$(CURDIR)/LLVM
+TOOLS_PATH += LLVM_PASS_PATH=$(CURDIR)/../LLVM
 
 CPY_CLANG_REPO=packetmill-clang-cpy
 CPY_CLANG_LTO_REPO=packetmill-clang-flto-cpy
