@@ -65,6 +65,13 @@ test_packetmill_nat:
 	mkdir -p test_packetmill_nat
 	mv packetmill-results* test_packetmill_nat/
 
+# Check LLVM Pass (reordering)
+test_llvm_pass_router:
+	npf-compare ${CPY_CLANG_REPO}+vanilla:NoLTO ${CPY_CLANG_LTO_REPO}+vanilla:ClickLTO ${CPY_CLANG_LTO_REPO}+clickopt:ReorderLTO --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} freqtune udp --config n_runs=${N_RUNS} ${NPF_FLAGS} --variable ${TOOLS_PATH} FREQ=3000 GEN_LENGTH={64,512,1024}
+	rm -fr test_llvm_pass_router/
+	mkdir -p test_llvm_pass_router
+	mv packetmill-results* test_llvm_pass_router/
+
 clean:
 	rm -fr testie* perf-normalized.csv
 	rm -fr results/
