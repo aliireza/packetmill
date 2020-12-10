@@ -1,0 +1,11 @@
+fastclick/*
+xchange/*
+dpdk/*
+LLVM/build/*
+pmu-tools/*
+experiments/npf_build/*
+experiments/testie*/*
+experiments/test_*
+experiments/results/*
+experiments/perf-normialized.csv
+experiments/cluster/*
