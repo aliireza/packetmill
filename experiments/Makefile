@@ -9,7 +9,7 @@ NPF_CLUSTER=client=client-100G dut=dut-100G client2=client2-100G
 
 NPF_OUTPUT_NAME?=packetmill-results.pdf
 NPF_OUTPUT= --output --output-columns x all --max-results --graph-filename ${NPF_OUTPUT_NAME}
-NPF_FLAGS= --show-full --build-folder ./npf_build/ --force-retest ${NPF_OUTPUT} # --force-build
+NPF_FLAGS= --show-full --rand-env --build-folder ./npf_build/ --force-retest ${NPF_OUTPUT} # --force-build
 
 # Tools path 
 TOOLS_PATH := 
