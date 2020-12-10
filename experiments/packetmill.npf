@@ -31,8 +31,8 @@ TIMING=0
 XCHG=0
 ALIGN=0
 ALIGN_SIZE=0
-RAND_SEED=0
-RAND_MAX=0
+RAND_SEED=random
+RAND_MAX=32
 ids:CHKSUM=0
 
 // Multicore variables
@@ -515,8 +515,15 @@ input[0] ->
 
 %script@dut sudo=true
 
+if [ "$RAND_SEED" = "random" ] ; then
+    export CLICK_ELEM_RAND_SEED=$RANDOM
+else
+    export CLICK_ELEM_RAND_SEED=$RAND_SEED
+fi
+
+echo "RAND_SEED is $CLICK_ELEM_RAND_SEED"
+
 // Setting RAND
-export CLICK_ELEM_RAND_SEED=$RAND_SEED
 export CLICK_ELEM_RAND_MAX=$RAND_MAX
 
 sudo cpupower frequency-set -d 1200M -u 3700M
@@ -592,6 +599,7 @@ if [ $DEVIRTUALIZE -eq 1 ] ; then
         TALIGN+=$ALIGN_SIZE
         echo "Enabling alignas Pass"
     fi
+    echo "Running ${FASTCLICK_PATH}/bin/click-devirtualize CONFIGBASE $TREPLACE $TSTATIC $TINLINE $TUNROLL $TSWITCH $TJMPS $TALIGN > package.uo"
     ${FASTCLICK_PATH}/bin/click-devirtualize CONFIGBASE $TREPLACE $TSTATIC $TINLINE $TUNROLL $TSWITCH $TJMPS $TALIGN > package.uo
     ar x package.uo config
     cp config CONFIGDEV
@@ -658,10 +666,6 @@ wrmsr 0x620 $uncore_value
 
 // Setting DDIO WAYS
 wrmsr 0xC8B $ddio_value
-
-// Setting RAND
-export CLICK_ELEM_RAND_SEED=$RAND_SEED
-export CLICK_ELEM_RAND_MAX=$RAND_MAX
 
 // Setting RTE_SDK
 export RTE_SDK=$XCHG_PATH
