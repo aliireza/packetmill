@@ -124,7 +124,7 @@ For more information, please refer to PacketMill's [paper][packetmill-paper].
 
 ### Binutils
 
-We used `bintuils 2.32`. To install/update bintuils, please refer to [here][binutils-page]
+We used `bintuils 2.32`. To install/update bintuils, please refer to [here][binutils-page]. **Beware binutils 2.30, which comes with Ubuntu 18.04 has a bug with AVX512. See DPDK commit e19c6de3.**
 
 ### LLVM Pass - Reordering Pass
 
