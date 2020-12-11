@@ -16,6 +16,8 @@ The details of the experiments are as follows:
 <img src="test_sourcecode_router.png"  alt="Source-code Modifications (Router)" width="50%">
 </p>
 
+**Note that this figure is slightly different from the results reported in our paper, as we use (i) fixed-size packets rather than our real campus trace, (ii) improved version of baseline (i.e., main branch of FastClick is merged into PacketMill branch), (iii) different system configurations (i.e., different software packages and firmwares).**
+
 - `X-Change (Forwarder)`: This experiment compares the performance of different metadata management model: (i) copying, (ii) overlaying, and (iii) X-Change, where a single core is forwarding fixed-size packets. Note that this experiment uses LTO in all configurations. You can use `make test_xchg_fwd` to run this experiment. The output of the experiment should be similar to the following figure:
 
 <p align="center">
@@ -35,16 +37,13 @@ The details of the experiments are as follows:
 </p>
 
 
-**To run all of these experiments, use `make AE`.** 
-
-
 ## Other Experiments
 
 This section provides additional information to perform other experiments using our provided NPF testie file (i.e., `packetmill.npf`). 
 
 ### Changing Frequency
 
-We have set the processor's frequency to `2.3 GHz` in AE experiment. You can rerun the experiments in another frequency by changing the value of `FREQ=2300` in the `packetmill.npf`. You can also run the experiment for multuple frequencies using `freqrun` tag. You need to add to a Makefile rule after "--tag" flag, e.g., `--tag freqtune`. In this case, you have to define/change the values of `freqtune:FREQ` in the `packetmill.npf`. 
+We have set the processor's frequency to `2.3 GHz` in AE experiment. You can rerun the experiments in another frequency by changing the value of `FREQ=2300` in the `packetmill.npf`. You can also run the experiment for multuple frequencies using `freqtune` tag. You need to add to a Makefile rule after "--tag" flag, e.g., `--tag freqtune`. In this case, you have to define/change the values of `freqtune:FREQ` in the `packetmill.npf`. 
 
 ### Using Trace
 
@@ -60,7 +59,27 @@ You can run the multicore NAT experiment via: `make test_packetmill_nat`. Note t
 
 ### Porfile-Guided Optimization (PGO) + BOLT Binary Optimizer
 
-To be added. 
+- **BOLT:** You can use `make test_bolt`  to apply BOLT binary optimizer to FastClick. To use BOLT, you need to prepare your testbed as follows:
+
+```bash
+cd packetmill/
+git clone https://github.com/llvm-mirror/llvm llvm-bolt
+cd llvm-bolt/tools
+git checkout -b llvm-bolt f137ed238db11440f03083b1c88b7ffc0f4af65e
+git clone https://github.com/facebookincubator/BOLT llvm-bolt
+patch -p 1 < tools/llvm-bolt/llvm.patch
+cd ..
+mkdir -p build
+cd build
+cmake -G Ninja ../ -DLLVM_TARGETS_TO_BUILD="X86;AArch64" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=ON
+ninja
+```
+
+Fore more information, please check their [repo][bolt-repo] and [paper][bolt-paper].
+
+- **PGO:** To be added. 
 
 
 [packetmill-paper]: https://people.kth.se/~farshin/documents/packetmill-asplos21.pdf
+[bolt-repo]: https://github.com/facebookincubator/BOLT
+[bolt-paper]: https://research.fb.com/publications/bolt-a-practical-binary-optimizer-for-data-centers-and-beyond/

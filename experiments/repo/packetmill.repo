@@ -4,5 +4,5 @@ url=git@github.com:tbarbette/fastclick.git
 branch=packetmill
 bin_folder=bin
 bin_name=click
-configure=./configure --disable-linuxmodule --enable-userlevel --enable-user-multithread --enable-etherswitch --enable-bound-port-transfer --disable-dynamic-linking --enable-local --enable-dpdk=$RTE_SDK --enable-research --enable-gtp --disable-task-stats --enable-flow --disable-task-stats --enable-cpu-load --prefix $(pwd)/build/ CFLAGS="-O3" CXXFLAGS="-std=gnu++14 -O3 -fno-access-control -Wno-register -Wno-inconsistent-missing-override" --enable-intel-cpu --enable-dpdk-pool --enable-rand-align RTE_TARGET=x86_64-native-linux-gcc
+configure=./configure --disable-linuxmodule --enable-userlevel --enable-user-multithread --enable-etherswitch --enable-bound-port-transfer --disable-dynamic-linking --enable-local --enable-dpdk=$RTE_SDK --enable-research --disable-task-stats --enable-flow --disable-task-stats --enable-cpu-load --prefix $(pwd)/build/ CFLAGS="-std=gnu11 -O3" CXXFLAGS="-std=gnu++14 -O3 -fno-access-control -Wno-register -Wno-inconsistent-missing-override" --enable-intel-cpu --enable-dpdk-pool --enable-rand-align RTE_TARGET=x86_64-native-linux-gcc
 tags=click,fastclick,batch,fastclickbased,packetmill

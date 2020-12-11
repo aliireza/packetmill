@@ -9,6 +9,11 @@ timeout=600
 
 accept_zero={EL.*,EL}
 
+graph_tick_params={direction:in,which:both,axis:both,grid_linestyle:dotted,bottom:true,top:true,right:true,left:true,grid_color:#444444}
+graph_grid_linestyle=dotted
+var_names+={GEN_LENGTH:Packet Length (Bytes)}
+var_lim+={result-THROUGHPUT:0-}
+
 %variables
 
 // Number of CPU cores and Burst Size
@@ -34,6 +39,10 @@ ALIGN_SIZE=0
 RAND_SEED=random
 RAND_MAX=32
 ids:CHKSUM=0
+BOLT=0
+
+// BOLT variables
+boltpgo:BOLT=1
 
 // Multicore variables
 scaling:DPDK_CPU={1,2,3,4}
@@ -193,6 +202,7 @@ deviropt:JMPS=0
 
 // Pass the gdb tags to run packetmill/click under gdb and see where things go bad
 gdb:GDB=gdb -ex run -ex "signal 2" -ex bt -batch -args
+profilebolt:PERF=perf record -e cycles:u -j any,u -o ${EXP_PATH}/perf.data.bolt -- 
 
 // Pick main NF (router or forwarding)
 fwd:FNT=Fwd
@@ -215,6 +225,7 @@ PERF_RUN_CORE=2 // For running the profiler
 
 //Variables supposed to be overriden (we do this to avoid the overriden message):
 DUT_PMU_PATH=
+DUT_BOLT_PATH=
 XCHG_PATH=
 EXP_PATH=
 LLVM_PASS_PATH=
@@ -231,6 +242,7 @@ PERF_EVENTS=branches,branch-misses,cache-references,cache-misses,cycles,instruct
 novec:MLX_OPT?=,rx_vec_en=0
 noinline:MLX_OPT+=,rxq_cqe_comp_en=0,mprq_en=0,txq_inline_max=0
 GDB?=
+PERF?=
 
 INITVLAN=
 SETVLAN=
@@ -311,7 +323,7 @@ for col in $column;do
 done
 
 rm -f $input_file
-mv tmp-perf.csv $EXP_PATH/perf-normalized.csv
+#mv tmp-perf.csv $EXP_PATH/perf-normalized.csv
 
 
 #============================================================================================#
@@ -670,8 +682,20 @@ wrmsr 0xC8B $ddio_value
 // Setting RTE_SDK
 export RTE_SDK=$XCHG_PATH
 
-echo "Launching $BIN at ${FASTCLICK_PATH} with config $CFG in $(pwd)"
-$GDB ${FASTCLICK_PATH}/userlevel/$BIN --dpdk -w ${dut:0:pci}${MLX_OPT} -w ${dut:2:pci}${MLX_OPT} -l 0-$(( $DPDK_CPU - 1 )) -- $CFG
+
+if [ $BOLT -eq 1 ] ; then
+    // Converting Perf data to bolt
+    ${DUT_BOLT_PATH}/perf2bolt -p ${EXP_PATH}/perf.data.bolt -o ${EXP_PATH}/perf.fdata ${FASTCLICK_PATH}/userlevel/$BIN
+    ${DUT_BOLT_PATH}/llvm-bolt ${FASTCLICK_PATH}/userlevel/$BIN -o ${FASTCLICK_PATH}/userlevel/$BIN.bolt -data=${EXP_PATH}/perf.fdata -reorder-blocks=cache+ -reorder-functions=hfsort -split-functions=2 -split-all-cold -split-eh -dyno-stats
+
+    echo "EVENT COMPILED"
+    echo "Launching $BIN.bolt at ${FASTCLICK_PATH} with config $CFG in $(pwd)"
+    $GDB ${FASTCLICK_PATH}/userlevel/$BIN.bolt --dpdk -w ${dut:0:pci}${MLX_OPT} -w ${dut:2:pci}${MLX_OPT} -l 0-$(( $DPDK_CPU - 1 )) -- $CFG
+else
+    echo "EVENT COMPILED"
+    echo "Launching $BIN at ${FASTCLICK_PATH} with config $CFG in $(pwd)"
+    $GDB $PERF ${FASTCLICK_PATH}/userlevel/$BIN --dpdk -w ${dut:0:pci}${MLX_OPT} -w ${dut:2:pci}${MLX_OPT} -l 0-$(( $DPDK_CPU - 1 )) -- $CFG
+fi
 
 
 %require

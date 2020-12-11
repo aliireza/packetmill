@@ -17,6 +17,9 @@ as extracted from Link-Time Optimization (LTO), which reoders the commonly used 
 
 For more information, please refer to PacketMill's [paper][packetmill-paper].
 
+
+**We are currently working on the camera-ready version of PacketMill paper, but you can check out our submitted [extended abstract][packetmill-extended-abstract] to [ASPLOS'21][asplos21-page].**
+
 ## Applicability
 
 We have developed/tested PacketMill for/on [FastClick][fastclick-repo], but our techniques could be adapted to other packet processing frameworks.
@@ -33,7 +36,7 @@ We implemented our source-code optimizations on top of [click-devirtualize][devi
 
 ## What is included here?
 
-This repository contains information/source code to use PacketMill and reproduce the results presented in our ASPLOS'21 [paper][packetmill-paper].
+This repository contains information/source code to use PacketMill and reproduce some of the results presented in our ASPLOS'21 [paper][packetmill-paper].
 
 
 ## Experiments
@@ -45,7 +48,7 @@ The experiments are located at `experiments/`. The folder has a `Makefile` and `
 
 ## Testbed
 
-Our experiments mainly requires `npf`, `X-Change`, `FastClick`, and `LLVM toolchain`. 
+Our experiments mainly requires `npf`, `X-Change`, `FastClick`, and `LLVM toolchain`. There is a simple bash script (`setup_repo.sh`) that could help you to clone/compile different repositories, but you should mainly rely on this `README.md`. 
 
 ### Network Performance Framework (NPF) Tool
 
@@ -55,7 +58,7 @@ You can install `npf` via the following command:
 python3 -m pip install --user npf
 ```
 
-NPF will look for `cluster/` and `repo/` in your current working/testie directory. We have included the required `repo` for our experiments and a sample `cluster` template. To setup your cluster, please check our [guidelines][npf-setup] for our previous paper. Additionally, you can check the [NPF README][npf-readme] file.
+NPF will look for `cluster/` and `repo/` in your current working/testie directory. We have included the required `repo` for our experiments and a sample `cluster` template, available at `experiment/`. To setup your cluster, please check the [guidelines][npf-setup] for our previous paper. Additionally, you can check the [NPF README][npf-readme] file.
 
 ### X-Change (Modified DPDK)
 
@@ -99,7 +102,7 @@ NPF automatically clone and build FastClick for the experiments (based on the te
 ```bash
 git clone --branch packetmill git@github.com:tbarbette/fastclick.git
 cd fastclick
-./configure --disable-linuxmodule --enable-userlevel --enable-user-multithread --enable-etherswitch --disable-dynamic-linking --enable-local --enable-dpdk=$RTE_SDK --enable-research --enable-gtp --disable-task-stats --enable-flow --disable-task-stats --enable-cpu-load --prefix $(pwd)/build/ --enable-intel-cpu RTE_SDK=/home/alireza/packetmill/xchange RTE_TARGET=x86_64-native-linux-clanglto CXX="clang++ -flto -fno-access-control" CC="clang -flto" CXXFLAGS="-std=gnu++14 -O3" LDFLAGS="-flto -fuse-ld=lld -Wl,-plugin-opt=save-temps" RANLIB="/bin/true" LD="ld.lld" READELF="llvm-readelf" AR="llvm-ar" --disable-bound-port-transfer --enable-dpdk-pool --enable-dpdk-xchg --disable-dpdk-packet
+./configure --disable-linuxmodule --enable-userlevel --enable-user-multithread --enable-etherswitch --disable-dynamic-linking --enable-local --enable-dpdk=$RTE_SDK --enable-research --disable-task-stats --enable-flow --disable-task-stats --enable-cpu-load --prefix $(pwd)/build/ --enable-intel-cpu RTE_SDK=/home/alireza/packetmill/xchange RTE_TARGET=x86_64-native-linux-clanglto CXX="clang++ -flto -fno-access-control" CC="clang -flto" CXXFLAGS="-std=gnu++14 -O3" LDFLAGS="-flto -fuse-ld=lld -Wl,-plugin-opt=save-temps" RANLIB="/bin/true" LD="ld.lld" READELF="llvm-readelf" AR="llvm-ar" --disable-bound-port-transfer --enable-dpdk-pool --enable-dpdk-xchg --disable-dpdk-packet
 make
 sudo make uninstall
 sudo make install
@@ -231,6 +234,8 @@ If you have any questions regarding our code or the paper, you can contact [Alir
 [x-change-repo]: https://github.com/tbarbette/xchange
 [dpdk-page]: https://www.dpdk.org/
 [packetmill-paper]: https://people.kth.se/~farshin/documents/packetmill-asplos21.pdf
+[packetmill-extended-abstract]: https://people.kth.se/~farshin/documents/packetmill-asplos21-extended_abstract.pdf
+[asplos21-page]: https://asplos-conference.org/2021
 [packetmill-repo]: https://github.com/aliireza/packetmill 
 [fastclick-repo]: https://github.com/tbarbette/fastclick
 [tom-page]: https://www.kth.se/profile/barbette

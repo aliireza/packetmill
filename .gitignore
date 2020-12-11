@@ -3,6 +3,8 @@ xchange/*
 dpdk/*
 LLVM/build/*
 pmu-tools/*
+autofdo/*
+llvm-bolt/*
 experiments/npf_build/*
 experiments/testie*/*
 experiments/test_*
