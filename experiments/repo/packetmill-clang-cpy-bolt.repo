@@ -1,0 +1,3 @@
+parent=packetmill-clang-cpy
+name=PacketMill (clang) - Copying Enabled - Bolt
+configure+= LDFLAGS="-fuse-ld=lld -Wl,--emit-relocs"
