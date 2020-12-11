@@ -226,6 +226,7 @@ PERF_RUN_CORE=2 // For running the profiler
 //Variables supposed to be overriden (we do this to avoid the overriden message):
 DUT_PMU_PATH=
 DUT_BOLT_PATH=
+DUT_AUTOFDO_PATH=
 XCHG_PATH=
 EXP_PATH=
 LLVM_PASS_PATH=

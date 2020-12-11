@@ -1,4 +1,4 @@
-N_RUNS=1
+N_RUNS=5
 CASE?=router
 PROFILE?=perf
 
@@ -31,7 +31,7 @@ CLANG_PGO_PROFILE_REPO=packetmill-clang-cpy-pgo-profile
 CLANG_BOLT_REPO=packetmill-clang-cpy-bolt
 
 
-AE_SYNTHETIC = test_xchg_fwd test_packetmill_router test_packetmill_ids test_sourcecode_router
+AE_SYNTHETIC = test_xchg_fwd test_packetmill_router test_packetmill_ids test_sourcecode_router test_packetmill_nat
 
 
 AE: $(AE_SYNTHETIC)
@@ -46,7 +46,7 @@ test_sourcecode_router:
 
 # Metadata Management Comparisson (X-Change vs. Overlaying vs. Copying) - Forwarding - single core
 test_xchg_fwd:
-	npf-compare ${CPY_CLANG_LTO_REPO}+vanilla:Copying ${OVRLY_CLANG_LTO_REPO}+vanilla:Overlaying ${INSIDE_CLANG_LTO_REPO}+vanilla:Inside--Copying+Overlaying ${XCHG_CLANG_LTO_REPO}+vanilla,xchg:X-Change  --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} novec udp fwd --config n_runs=${N_RUNS} ${NPF_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64,512,1024}
+	npf-compare ${CPY_CLANG_LTO_REPO}+vanilla:Copying ${OVRLY_CLANG_LTO_REPO}+vanilla:Overlaying ${XCHG_CLANG_LTO_REPO}+vanilla,xchg:X-Change  --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} novec udp fwd --config n_runs=${N_RUNS} ${NPF_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64,512,1024}
 	rm -fr test_xchg_fwd/
 	mkdir -p test_xchg_fwd
 	mv packetmill-results* test_xchg_fwd/
@@ -67,7 +67,7 @@ test_packetmill_ids:
 
 # NAT Comparisson (Vanilla vs. PacketMill) - multicore
 test_packetmill_nat:
-	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_REPO}+embedding,xchg:PacketMill --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} nat scaling novec --config n_runs=${N_RUNS} ${NPF_FLAGS} --variable ${TOOLS_PATH}
+	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_REPO}+embedding,xchg:PacketMill --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} nat scaling novec udp --config n_runs=${N_RUNS} ${NPF_FLAGS} --variable ${TOOLS_PATH}  GEN_LENGTH={64,512,1024}
 	rm -fr test_packetmill_nat/
 	mkdir -p test_packetmill_nat
 	mv packetmill-results* test_packetmill_nat/
@@ -83,13 +83,13 @@ test_llvm_pass_router:
 # Apply BOLT to FastClick
 
 test_bolt: perf.data.bolt
-	npf-compare ${CLANG_BOLT_REPO}+vanilla:Vanilla ${CLANG_BOLT_REPO}+vanilla,boltpgo:Bolt --testie test.testie --cluster ${NPF_CLUSTER} --tags ${CASE} udp --config n_runs=${N_RUNS} ${NPF_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64}
+	npf-compare ${CLANG_BOLT_REPO}+vanilla:Vanilla ${CLANG_BOLT_REPO}+vanilla,boltpgo:Bolt --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp --config n_runs=${N_RUNS} ${NPF_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64}
 	rm -fr test_bolt/
 	mkdir -p test_bolt
 	mv packetmill-results* test_bolt/
 
 perf.data.bolt:
-	npf-compare ${CLANG_BOLT_REPO}+vanilla,profilebolt:Profile --testie test.testie --cluster ${NPF_CLUSTER} --tags udp --config n_runs=1 ${NPF_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64}
+	npf-compare ${CLANG_BOLT_REPO}+vanilla,profilebolt:Profile --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udp --config n_runs=1 ${NPF_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64}
 	rm -fr pgo-results*
 
 clean:
