@@ -51,13 +51,13 @@ This section provides additional information to perform other experiments using 
 
 ### Changing Frequency
 
-We have set the processor's frequency to `2.3 GHz` in AE experiment. You can rerun the experiments in another frequency by changing the value of `FREQ=2300` in the `packetmill.npf`. You can also run the experiment for multuple frequencies using `freqtune` tag. You need to add to a Makefile rule after "--tag" flag, e.g., `--tag freqtune`. In this case, you have to define/change the values of `freqtune:FREQ` in the `packetmill.npf`. 
+We have set the processor's frequency to `2.3 GHz` or `3.0 GHz` in AE experiment. You can rerun the experiments in another frequency by changing the value of `FREQ=2300` in the `packetmill.npf`. You can also run the experiment for multuple frequencies using `freqtune` tag. You need to add to a Makefile rule after "--tag" flag, e.g., `--tag freqtune`. In this case, you have to define/change the values of `freqtune:FREQ` in the `packetmill.npf`. 
 
 ### Using Trace
 
 To run the experiments with a trace, you should remove `udp` tag from the experiment rule defined in `Makefile` and substitute the current value of `trace` in the `packetmill.npf` file. Note that `packetmill.npf` has multiple `trace` variables, as you could have multiple packet generators. Moreover, you should "fine-tune" the `TIMING` variable in `packetmill.npf` if you are planning to replay the input trace at different rates. 
 
-### Using WorkPackage
+### Using WorkPackage Element
 
 To emulate the behavior of more memory- and compute-intensive functions, you can use `make test_packetmill_wp`. This experiment uses `WorkPackage` element from FastClick with different parameters. You can check [here][workpackage-cc] for more information. 
 
