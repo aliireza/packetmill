@@ -133,7 +133,7 @@ For more information, please refer to PacketMill's [paper][packetmill-paper].
 
 ### Binutils
 
-We used `bintuils 2.32`. To install/update bintuils, please refer to [here][binutils-page]. **Beware binutils 2.30, which comes with Ubuntu 18.04 has a bug with AVX512. See DPDK commit e19c6de3.**
+We used `bintuils 2.32`. To install/update bintuils, please refer to [here][binutils-page]. **Beware binutils 2.30, which comes with Ubuntu 18.04 has a bug with AVX512. See DPDK commit [e19c6de3][dpdk-commit-link].**
 
 ### LLVM Pass - Reordering Pass
 
@@ -252,3 +252,4 @@ If you have any questions regarding our code or the paper, you can contact [Alir
 [npf-readme]: https://github.com/tbarbette/npf/blob/master/README.md
 [binutils-page]: https://www.gnu.org/software/binutils/
 [packet-header-fastclick]: https://github.com/tbarbette/fastclick/blob/master/include/click/packet.hh
+[dpdk-commit-link]: https://github.com/DPDK/dpdk/commit/e19c6de3f2f12d0f49bdf9e787b3f43612c1df3c
