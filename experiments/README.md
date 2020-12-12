@@ -36,6 +36,14 @@ The details of the experiments are as follows:
 <img src="test_packetmill_ids.png"  alt="Sophisticated Network Functions (Router+IDS+VLAN)" width="50%">
 </p>
 
+- `Multicore NAT (Router+NAT)`: This experiment demonstrates the benefits of PacketMill for a router+NAT configuration, where different number of cores are receiving 1024-B packets. You can use `make test_packetmill_nat` to run this experiment. The output of the experiment should be similar to the following figure:
+
+<p align="center">
+<img src="test_packetmill_nat.png"  alt="Multicore NAT (Router+NAT)" width="50%">
+</p>
+
+You can run the multicore NAT experiment via: `make test_packetmill_nat`. Note that you need to have a trace for this experiment. 
+
 
 ## Other Experiments
 
@@ -49,13 +57,14 @@ We have set the processor's frequency to `2.3 GHz` in AE experiment. You can rer
 
 To run the experiments with a trace, you should remove `udp` tag from the experiment rule defined in `Makefile` and substitute the current value of `trace` in the `packetmill.npf` file. Note that `packetmill.npf` has multiple `trace` variables, as you could have multiple packet generators. Moreover, you should "fine-tune" the `TIMING` variable in `packetmill.npf` if you are planning to replay the input trace at different rates. 
 
+### Using WorkPackage
+
+To emulate the behavior of more memory- and compute-intensive functions, you can use `make test_packetmill_wp`. This experiment uses `WorkPackage` element from FastClick with different parameters. You can check [here][workpackage-cc] for more information. 
+
 ### IR-code Optimizations + LTO
 
 Our testie file also contains the workflow to reorder `Packet` data structure based on the binary access pattern, i.e., tracking and changing `GEPI` instruction in either `click` or `embedclick` binaries. To try it out, you can use `make test_llvm_pass_router`.
 
-### Multicore NAT
-
-You can run the multicore NAT experiment via: `make test_packetmill_nat`. Note that you need to have a trace for this experiment. 
 
 ### Porfile-Guided Optimization (PGO) + BOLT Binary Optimizer
 
@@ -77,9 +86,23 @@ ninja
 
 Fore more information, please check their [repo][bolt-repo] and [paper][bolt-paper].
 
-- **PGO:** To be added. 
+- **PGO:** You can use `make test_pgo` to apply PGO to FastClick. TO use PGO, you need clone and compile `AutoFDO` tool to convert perf output.
+
+```bash
+git clone --recursive https://github.com/google/autofdo.git
+aclocal -I .; autoheader; autoconf; automake --add-missing -c
+./configure
+make -j 1
+```
+
+For more information, please check [clang user manual][clang-pgo] and autofdo [repo][autofdo-repo].
+
+- **Comparisson:** You can use `make test_bolt_pgo` to compare the performance of vanilla FastClick with different optimized versions. 
 
 
 [packetmill-paper]: https://people.kth.se/~farshin/documents/packetmill-asplos21.pdf
 [bolt-repo]: https://github.com/facebookincubator/BOLT
 [bolt-paper]: https://research.fb.com/publications/bolt-a-practical-binary-optimizer-for-data-centers-and-beyond/
+[clang-pgo]: https://clang.llvm.org/docs/UsersManual.html#profile-guided-optimization
+[autofdo-repo]: https://github.com/google/autofdo
+[workpackage-cc]: https://github.com/tbarbette/fastclick//blob/master/elements/research/workpackage.cc

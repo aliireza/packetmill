@@ -1,0 +1,3 @@
+parent=packetmill-clang-cpy
+name=PacketMill (clang) - Copying Enabled - PGO 
+configure+= CFLAGS="-std=gnu11 -O3 -gline-tables-only -fprofile-sample-use=$PROFILE_PATH"  CXXFLAGS="-std=gnu++14 -O3 -gline-tables-only -fprofile-sample-use=$PROFILE_PATH"

@@ -12,6 +12,7 @@ accept_zero={EL.*,EL}
 graph_tick_params={direction:in,which:both,axis:both,grid_linestyle:dotted,bottom:true,top:true,right:true,left:true,grid_color:#444444}
 graph_grid_linestyle=dotted
 var_names+={GEN_LENGTH:Packet Length (Bytes)}
+var_names+={DPDK_CPU:Number of Cores}
 var_lim+={result-THROUGHPUT:0-}
 
 %variables
@@ -202,7 +203,8 @@ deviropt:JMPS=0
 
 // Pass the gdb tags to run packetmill/click under gdb and see where things go bad
 gdb:GDB=gdb -ex run -ex "signal 2" -ex bt -batch -args
-profilebolt:PERF=perf record -e cycles:u -j any,u -o ${EXP_PATH}/perf.data.bolt -- 
+profilepgo:PERF=perf record -b -o ${NPF_ROOT}/perf.data.pgo --
+profilebolt:PERF=perf record -e cycles:u -j any,u -o ${NPF_ROOT}/perf.data.bolt -- 
 
 // Pick main NF (router or forwarding)
 fwd:FNT=Fwd
@@ -324,7 +326,7 @@ for col in $column;do
 done
 
 rm -f $input_file
-#mv tmp-perf.csv $EXP_PATH/perf-normalized.csv
+#mv tmp-perf.csv ${NPF_ROOT}/perf-normalized.csv
 
 
 #============================================================================================#
@@ -528,6 +530,8 @@ input[0] ->
 
 %script@dut sudo=true
 
+echo "PERF is" $PERF
+
 if [ "$RAND_SEED" = "random" ] ; then
     export CLICK_ELEM_RAND_SEED=$RANDOM
 else
@@ -686,8 +690,8 @@ export RTE_SDK=$XCHG_PATH
 
 if [ $BOLT -eq 1 ] ; then
     // Converting Perf data to bolt
-    ${DUT_BOLT_PATH}/perf2bolt -p ${EXP_PATH}/perf.data.bolt -o ${EXP_PATH}/perf.fdata ${FASTCLICK_PATH}/userlevel/$BIN
-    ${DUT_BOLT_PATH}/llvm-bolt ${FASTCLICK_PATH}/userlevel/$BIN -o ${FASTCLICK_PATH}/userlevel/$BIN.bolt -data=${EXP_PATH}/perf.fdata -reorder-blocks=cache+ -reorder-functions=hfsort -split-functions=2 -split-all-cold -split-eh -dyno-stats
+    ${DUT_BOLT_PATH}/perf2bolt -p ${NPF_ROOT}/perf.data.bolt -o ${NPF_ROOT}/perf.fdata ${FASTCLICK_PATH}/userlevel/$BIN
+    ${DUT_BOLT_PATH}/llvm-bolt ${FASTCLICK_PATH}/userlevel/$BIN -o ${FASTCLICK_PATH}/userlevel/$BIN.bolt -data=${NPF_ROOT}/perf.fdata -reorder-blocks=cache+ -reorder-functions=hfsort -split-functions=2 -split-all-cold -split-eh -dyno-stats
 
     echo "EVENT COMPILED"
     echo "Launching $BIN.bolt at ${FASTCLICK_PATH} with config $CFG in $(pwd)"
