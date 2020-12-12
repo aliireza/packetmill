@@ -5,6 +5,10 @@ PacketMill is a system for optimizing software packet processing, which (i) intr
 <p align="center">
 <img src="PacketMill-logo.png"  alt="PacketMill" width="40%">
 </p>
+<p align="center">
+<sub>Some of the symbols used in this image are modified versions of vectors published by <a href="https://www.freevector.com/">www.freevector.com</a>.</sub>
+</p>
+
 
 PacketMill is composed of three main components:
 
