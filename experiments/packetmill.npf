@@ -11,6 +11,7 @@ accept_zero={EL.*,EL}
 
 graph_tick_params={direction:in,which:both,axis:both,grid_linestyle:dotted,bottom:true,top:true,right:true,left:true,grid_color:#444444}
 graph_grid_linestyle=dotted
+var_grid=True
 var_names+={GEN_LENGTH:Packet Length (Bytes)}
 var_names+={DPDK_CPU:Number of Cores}
 var_lim+={result-THROUGHPUT:0-}
@@ -39,6 +40,8 @@ ALIGN=0
 ALIGN_SIZE=0
 RAND_SEED=random
 RAND_MAX=32
+norand:RAND_SEED=0
+norand:RAND_MAX=0
 ids:CHKSUM=0
 BOLT=0
 
