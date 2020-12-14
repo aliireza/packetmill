@@ -29,6 +29,7 @@ TOOLS_PATH += EXP_PATH=${EXP_PATH}
 
 # Repositories
 
+CPY_GCC_REPO=packetmill
 CPY_CLANG_REPO=packetmill-clang-cpy
 CPY_CLANG_LTO_REPO=packetmill-clang-flto-cpy
 OVRLY_CLANG_LTO_REPO=packetmill-clang-flto-ovrly
@@ -47,13 +48,6 @@ AE_SYNTHETIC = test_xchg_fwd test_packetmill_router test_packetmill_ids test_sou
 
 AE: $(AE_SYNTHETIC)
 
-
-# Source-code Modifications Router via Copying (Vanilla Click) - Router - single core
-test_sourcecode_router:
-	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${CPY_CLANG_REPO}+devir:Devirtualize ${CPY_CLANG_REPO}+constants:Constant ${CPY_CLANG_REPO}+graph:Graph ${CPY_CLANG_REPO}+embedding:All --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp --config n_runs=${N_RUNS} ${NPF_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64,512,1024}
-	rm -fr test_sourcecode_router/
-	mkdir -p test_sourcecode_router
-	mv packetmill-results* test_sourcecode_router/
 
 # Metadata Management Comparisson (X-Change vs. Overlaying vs. Copying) - Forwarding - single core
 test_xchg_fwd:
@@ -97,6 +91,12 @@ test_packetmill_wp:
 	mkdir -p packetmill_wp
 	mv packetmill-results* packetmill_wp/
 
+# Source-code Modifications Router via Copying (Vanilla Click) - Router - single core
+test_sourcecode_router:
+	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${CPY_CLANG_REPO}+devir:Devirtualize ${CPY_CLANG_REPO}+constants:Constant ${CPY_CLANG_REPO}+graph:Graph ${CPY_CLANG_REPO}+embedding:All --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp --config n_runs=${N_RUNS} ${NPF_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128]
+	rm -fr test_sourcecode_router/
+	mkdir -p test_sourcecode_router
+	mv packetmill-results* test_sourcecode_router/
 
 # Compare Vanilla FastClick vs. BOLT vs. PGO (clang)
 test_bolt_pgo: perf.data.bolt code.prof
