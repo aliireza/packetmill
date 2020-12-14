@@ -10,14 +10,6 @@ Most of the experiments in [our paper][packetmill-paper] have been performed usi
 
 The details of the experiments are as follows:
 
-- `Source-code Modifications (Router)`: This experiment shows the benefits of using our proposed source-code optimizations when a router is receiving **64-B**, **512-B**, and **1024-B** packets. This experiment uses default DPDK v20.02 (compiled with clang) and copying metadata management model. You can use `make test_sourcecode_router` to run this experiment. The output of the experiment should be similar to the following figure:
-
-<p align="center">
-<img src="test_sourcecode_router.png"  alt="Source-code Modifications (Router)" width="50%">
-</p>
-
-**Note that this figure is showing a slightly different improvements than the results reported in our paper, as we use (i) fixed-size packets rather than our real campus trace, (ii) improved version of baseline (i.e., main branch of FastClick is merged into PacketMill branch), (iii) different system configurations (i.e., different software packages and firmwares).**
-
 - `X-Change (Forwarder)`: This experiment compares the performance of different metadata management model: (i) copying, (ii) overlaying, and (iii) X-Change, where a single core is forwarding fixed-size packets. Note that this experiment uses LTO in all configurations. You can use `make test_xchg_fwd` to run this experiment. The output of the experiment should be similar to the following figure:
 
 <p align="center">
@@ -44,6 +36,13 @@ The details of the experiments are as follows:
 
 You can run the multicore NAT experiment via: `make test_packetmill_nat`. Note that you need to have a trace for this experiment. 
 
+- `Source-code Modifications (Router)`: This experiment shows the benefits of using our proposed source-code optimizations when a router is receiving **64-B**, **512-B**, and **1024-B** packets. This experiment uses copying metadata management model. You can use `make test_sourcecode_router` to run this experiment. The output of the experiment should be similar to the following figure:
+
+<p align="center">
+<img src="test_sourcecode_router.png"  alt="Source-code Modifications (Router)" width="50%">
+</p>
+
+**Note that this figure is showing a slightly different improvements than the results reported in our paper, as we use (i) fixed-size packets rather than our real campus trace, (ii) improved version of baseline (i.e., main branch of FastClick is merged into PacketMill branch), (iii) different system configurations (i.e., different software packages and firmwares).**
 
 ## Other Experiments
 
