@@ -1,7 +1,11 @@
+# Change the number of runs per experiment
 N_RUNS=5
+
+# Default Configuration
 CASE?=router
 PROFILE?=perf
 
+# To avoid running multiple experiments at once
 MAKEFLAGS := -j 1
 
 # NPF Clusters (dut.node and pkt-gen.node should be defined in cluster/)
@@ -28,7 +32,6 @@ TOOLS_PATH += LLVM_PASS_PATH=${LLVM_PASS_PATH}
 TOOLS_PATH += EXP_PATH=${EXP_PATH}
 
 # Repositories
-
 CPY_GCC_REPO=packetmill
 CPY_CLANG_REPO=packetmill-clang-cpy
 CPY_CLANG_LTO_REPO=packetmill-clang-flto-cpy
@@ -39,13 +42,13 @@ CLANG_PGO_REPO=packetmill-clang-cpy-pgo
 CLANG_PGO_PROFILE_REPO=packetmill-clang-cpy-pgo-profile
 CLANG_BOLT_REPO=packetmill-clang-cpy-bolt
 
-
+# Profiling related for PGO
 CREATE_PROF := $(addsuffix create_llvm_prof,$(DUT_AUTOFDO_PATH))
 PROFILE_PATH := $(addsuffix /code.prof,$(EXP_PATH))
 
-.PHONY: deps deps-xchg all
+.PHONY: deps deps-xchg all clean AE
 
-#Verification of setup
+# Verification of the Setup
 deps:
 ifndef RTE_SDK
 	$(error Please define RTE_SDK environment variable)
@@ -73,9 +76,8 @@ all: deps deps-xchg
 .DEFAULT_GOAL := all
 
 
-# Now the real experiments
-
-AE_SYNTHETIC = test_xchg_fwd test_packetmill_router test_packetmill_ids test_sourcecode_router test_packetmill_nat
+# Now the Real Experiments
+AE_SYNTHETIC = test_xchg_fwd test_packetmill_router test_packetmill_ids test_packetmill_nat test_sourcecode_router
 
 AE: $(AE_SYNTHETIC)
 
@@ -166,6 +168,7 @@ perf.data.pgo: deps
 	npf-compare ${CLANG_PGO_PROFILE_REPO}+vanilla,profilepgo:Profile --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} --config n_runs=1 ${NPF_FLAGS} --variable ${TOOLS_PATH}
 	rm -fr packetmill-results*
 
+# PGO clang data
 code.prof: perf.data.pgo
 	sudo ${CREATE_PROF} --profile=./perf.data.pgo --binary=./npf_build/${CLANG_PGO_PROFILE_REPO}/userlevel/click --out=./code.prof
 

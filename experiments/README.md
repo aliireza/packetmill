@@ -42,7 +42,7 @@ You can run the multicore NAT experiment via: `make test_packetmill_nat`. Note t
 <img src="test_sourcecode_router.png"  alt="Source-code Modifications (Router)" width="50%">
 </p>
 
-**Note that this figure is showing a slightly different improvements than the results reported in our paper, as we use (i) fixed-size packets rather than our real campus trace, (ii) improved version of baseline (i.e., main branch of FastClick is merged into PacketMill branch), (iii) different system configurations (i.e., different software packages and firmwares).**
+**Note that this figure is showing a slightly different improvements than the results reported in our paper, as we use (i) fixed-size packets rather than our real campus trace, (ii) improved version of baseline (i.e., main branch of FastClick is merged into PacketMill branch), and (iii) different system configurations (i.e., different software packages and firmwares).**
 
 ## Other Experiments
 
