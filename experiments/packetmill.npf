@@ -236,6 +236,12 @@ XCHG_PATH=
 EXP_PATH=
 LLVM_PASS_PATH=
 
+
+//Generator configuration
+
+//Record the latency of 1 packet every 100
+SAMPLE=100
+
 %late_variables
 
 scaling:CPU=EXPAND($DPDK_CPU)
