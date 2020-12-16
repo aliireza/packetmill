@@ -142,11 +142,19 @@ test_bolt_pgo: perf.data.bolt code.prof deps
 
 # Apply BOLT to FastClick
 test_bolt: perf.data.bolt  deps
-	npf-compare ${CLANG_BOLT_REPO}+vanilla,boltpgo:Bolt --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} --config n_runs=${N_RUNS} ${NPF_FLAGS} --force-build --variable ${TOOLS_PATH} FREQ=3000 
+	npf-compare ${CLANG_BOLT_REPO}+vanilla,boltpgo:Bolt --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} noperf --config n_runs=${N_RUNS} ${NPF_FLAGS} --force-build --variable ${TOOLS_PATH}
 	rm -fr test_bolt/
 	mkdir -p test_bolt
 	mv packetmill-results* test_bolt/
 	mv perf.* test_bolt/
+
+# Compare Vanilla vs. Vanilla+BOLT FastClick
+test_compare_bolt: perf.data.bolt  deps
+	npf-compare ${CLANG_BOLT_REPO}+vanilla:Vanilla ${CLANG_BOLT_REPO}+vanilla,boltpgo:Vanilla+Bolt --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} freqtune --config n_runs=${N_RUNS} ${NPF_FLAGS} --force-build --variable ${TOOLS_PATH}
+	rm -fr test_compare_bolt/
+	mkdir -p test_compare_bolt
+	mv packetmill-results* test_compare_bolt/
+	mv perf.* test_compare_bolt/
 
 # Apply PGO (clang) to FastClick
 test_pgo: code.prof deps
@@ -160,7 +168,9 @@ test_pgo: code.prof deps
 
 # BOLT perf data
 perf.data.bolt: deps
-	npf-compare ${CLANG_BOLT_REPO}+vanilla,profilebolt:Profile --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} --config n_runs=1 ${NPF_FLAGS} --variable ${TOOLS_PATH}
+	npf-compare ${CLANG_BOLT_REPO}+vanilla,profilebolt:Profile --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} noperf --config n_runs=1 ${NPF_FLAGS} --variable ${TOOLS_PATH}
+	rm -fr packetmill-results*
+
 	rm -fr packetmill-results*
 
 # PGO perf data

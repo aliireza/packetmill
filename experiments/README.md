@@ -67,7 +67,7 @@ Our testie file also contains the workflow to reorder `Packet` data structure ba
 
 ### Porfile-Guided Optimization (PGO) + BOLT Binary Optimizer
 
-- **BOLT:** You can use `make test_bolt`  to apply BOLT binary optimizer to FastClick. To use BOLT, you need to prepare your testbed as follows:
+- **BOLT:** You can use `make test_bolt` or `make test_compare_bolt`  to apply BOLT binary optimizer to FastClick. To use BOLT, you need to prepare your testbed as follows:
 
 ```bash
 cd packetmill/
@@ -84,6 +84,12 @@ ninja
 ```
 
 Fore more information, please check their [repo][bolt-repo] and [paper][bolt-paper].
+
+The output of `test_compare_bolt` should be something similar to the following figure:
+
+<p align="center">
+<img src="test_compare_bolt.png"  alt="Vanilla vs. Vanilla+BOLT FastClick (Router)" width="50%">
+</p>
 
 - **PGO:** You can use `make test_pgo` to apply PGO to FastClick. TO use PGO, you need clone and compile `AutoFDO` tool to convert perf output.
 
