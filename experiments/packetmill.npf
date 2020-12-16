@@ -571,7 +571,7 @@ echo "Click path is $FASTCLICK_PATH"
 
 BIN=click
 
-if [ $DEVIRTUALIZE -eq 1 ] ; then
+if [ $DEVIRTUALIZE -eq 1 -o $MINDRIVER -eq 1 ] ; then
     pushd ${FASTCLICK_PATH}
         sudo make clean-embed
         echo "Uninstalling.."

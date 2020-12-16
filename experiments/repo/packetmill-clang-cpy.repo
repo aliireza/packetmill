@@ -1,3 +1,3 @@
 parent=packetmill
 name=PacketMill (clang) - Copying Enabled
-configure+= RTE_TARGET=x86_64-native-linux-clanglto CXX="clang++ -fno-access-control" CC="clang" CXXFLAGS="-std=gnu++14 -O3" LDFLAGS="-fuse-ld=lld" RANLIB="/bin/true" LD="ld.lld" READELF="llvm-readelf" AR="llvm-ar" --disable-bound-port-transfer --enable-dpdk-pool --disable-dpdk-packet --disable-dpdk-xchg
+configure+= RTE_TARGET=x86_64-native-linux-clang CXX="clang++" CC="clang" CXXFLAGS="-std=gnu++14 -O3" LDFLAGS="-fuse-ld=lld" RANLIB="/bin/true" LD="ld.lld" READELF="llvm-readelf" AR="llvm-ar" --disable-bound-port-transfer --enable-dpdk-pool --disable-dpdk-packet --disable-dpdk-xchg
