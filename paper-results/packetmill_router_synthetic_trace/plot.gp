@@ -60,7 +60,7 @@ set grid
 
 set terminal pdf size 5,2.5
 set output 'throughput-bar.pdf'
-plot "Vanilla-throughput-stats.dat" using ($1):($2/1000000000) with points ls 3 title "Vanilla",\
+plot "Vanilla-throughput-stats.dat" using ($1):($2/1000000000) with points ls 3 title "Vanilla (Copying)",\
 "Vanilla-throughput-stats.dat" using ($1):($2/1000000000) with lines ls 3 dt 2 notitle,\
 "PacketMill-throughput-stats.dat" using ($1):($2/1000000000) with points ls 5 title "PacketMill (X-Change + Source-Code Optimizations)",\
 "PacketMill-throughput-stats.dat" using ($1):($2/1000000000) with lines ls 5 dt 4 notitle;
@@ -79,7 +79,7 @@ set grid
 
 set terminal pdf size 5,2.5
 set output 'pps-bar.pdf'
-plot "Vanilla-pps-stats.dat" using ($1):($2/1000000) with points ls 3 title "Vanilla",\
+plot "Vanilla-pps-stats.dat" using ($1):($2/1000000) with points ls 3 title "Vanilla (Copying)",\
 "Vanilla-pps-stats.dat" using ($1):($2/1000000) with lines ls 3 dt 2 notitle,\
 "PacketMill-pps-stats.dat" using ($1):($2/1000000) with points ls 5 title "PacketMill (X-Change + Source-Code Optimizations)",\
 "PacketMill-pps-stats.dat" using ($1):($2/1000000) with lines ls 5 dt 4 notitle;
@@ -96,7 +96,7 @@ unset xlabel
 set yrange[0:105]
 set ytics 0,20 font "Helvetica, 14"
 set ylabel "Throughput (Gbps)" font "Helvetica,14"
-plot "Vanilla-throughput-stats.dat" using ($1):($2/1000000000) with points ls 3 title "Vanilla",\
+plot "Vanilla-throughput-stats.dat" using ($1):($2/1000000000) with points ls 3 title "Vanilla {/*0.8(Copying)}",\
 "Vanilla-throughput-stats.dat" using ($1):($2/1000000000) with lines ls 3 dt 2 notitle,\
 "PacketMill-throughput-stats.dat" using ($1):($2/1000000000) with points ls 5 title "PacketMill {/*0.8 (X-Change + Source-Code Optimizations)}",\
 "PacketMill-throughput-stats.dat" using ($1):($2/1000000000) with lines ls 5 dt 4 notitle;
@@ -105,7 +105,7 @@ set yrange[0:13]
 set ytics 0,3 font "Helvetica, 14"
 set xlabel "Packet Size (Bytes)" font "Helvetica,14"
 set ylabel "PPS (Million)" font "Helvetica,14"
-plot "Vanilla-pps-stats.dat" using ($1):($2/1000000) with points ls 3 title "Vanilla",\
+plot "Vanilla-pps-stats.dat" using ($1):($2/1000000) with points ls 3 title "Vanilla (Copying)",\
 "Vanilla-pps-stats.dat" using ($1):($2/1000000) with lines ls 3 dt 2 notitle,\
 "PacketMill-pps-stats.dat" using ($1):($2/1000000) with points ls 5 title "PacketMill (X-Change + Source-Code Optimizations)",\
 "PacketMill-pps-stats.dat" using ($1):($2/1000000) with lines ls 5 dt 4 notitle;
