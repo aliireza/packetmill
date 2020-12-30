@@ -708,7 +708,7 @@ if [ $BOLT -eq 1 ] ; then
 else
     echo "EVENT COMPILED"
     echo "Launching $BIN at ${FASTCLICK_PATH} with config $CFG in $(pwd)"
-    $GDB $PERF ${FASTCLICK_PATH}/userlevel/$BIN --dpdk -w ${dut:0:pci}${MLX_OPT} -w ${dut:2:pci}${MLX_OPT} -l 0-$(( $DPDK_CPU - 1 )) -- $CFG
+    $GDB $PERF ${FASTCLICK_PATH}/userlevel/$BIN --dpdk -w ${dut:0:pci}${MLX_OPT} $(( "-w ${dut:2:pci}${MLX_OPT}" if $dualNIC else "" )) -l 0-$(( $DPDK_CPU - 1 )) -- $CFG
 fi
 
 
