@@ -88,6 +88,13 @@ test_xchg_fwd: deps-xchg
 	mkdir -p test_xchg_fwd
 	mv packetmill-results* test_xchg_fwd/
 
+# Metadata Management Comparisson (X-Change vs. Overlaying vs. Copying) - with/without vectorized PMD - Forwarding - single core
+test_xchg_fwd_vec: deps-xchg
+	npf-compare ${CPY_CLANG_LTO_REPO}+vanilla,novec:Copying-NOVEC ${CPY_CLANG_LTO_REPO}+vanilla:Copying-VEC ${OVRLY_CLANG_LTO_REPO}+vanilla,novec:Overlaying-NOVEC ${OVRLY_CLANG_LTO_REPO}+vanilla:Overlaying-VEC ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,novec:X-Change-NOVEC  ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,xchgvec:X-Change-VEC --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp fwd --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128]
+	rm -fr test_xchg_fwd_vec/
+	mkdir -p test_xchg_fwd_vec
+	mv packetmill-results* test_xchg_fwd_vec/
+
 # Router Comparisson (Vanilla vs. PacketMill) - single core
 test_packetmill_router: deps-xchg
 	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_REPO}+embedding,xchg:PacketMill --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} novec udp --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64,512,1024}
