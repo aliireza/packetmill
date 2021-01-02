@@ -18,6 +18,7 @@ NPF_INT_FLAGS := --show-full --rand-env 65536 --build-folder ./npf_build/ --forc
 # Tools path 
 DUT_PMU_PATH=$(CURDIR)/../pmu-tools # PMU Tools
 XCHG_PATH=$(CURDIR)/../xchange # X-Change (DPDK)
+XCHG_EXAMPLES_PATH=$(CURDIR)/../xchange/examples/ # X-Change (DPDK) - Examples
 DUT_BOLT_PATH=$(CURDIR)/../llvm-bolt/build/bin/ # BOLT Binary Optimizer
 DUT_AUTOFDO_PATH=$(CURDIR)/../autofdo/ # Autofdo Tool
 LLVM_PASS_PATH=$(CURDIR)/../LLVM # LLVM Passes
@@ -26,6 +27,7 @@ EXP_PATH=$(CURDIR) # Current Directory
 TOOLS_PATH := 
 TOOLS_PATH += DUT_PMU_PATH=${DUT_PMU_PATH}
 TOOLS_PATH += XCHG_PATH=${XCHG_PATH}
+TOOLS_PATH += XCHG_EXAMPLES_PATH=${XCHG_EXAMPLES_PATH}
 TOOLS_PATH += DUT_BOLT_PATH=${DUT_BOLT_PATH}
 TOOLS_PATH += DUT_AUTOFDO_PATH=${DUT_AUTOFDO_PATH}
 TOOLS_PATH += LLVM_PASS_PATH=${LLVM_PASS_PATH}
@@ -94,6 +96,20 @@ test_xchg_fwd_vec: deps-xchg
 	rm -fr test_xchg_fwd_vec/
 	mkdir -p test_xchg_fwd_vec
 	mv packetmill-results* test_xchg_fwd_vec/
+
+# Metadata Management Comparisson (X-Change vs. Copying) - with/without vectorized PMD - Forwarding DPDK - single core
+test_xchg_l2fwd_dpdk: deps-xchg
+	npf-compare fastclick --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp dpdk promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128] 
+	rm -fr test_xchg_l2fwd_dpdk/
+	mkdir -p test_xchg_l2fwd_dpdk
+	mv packetmill-results* test_xchg_l2fwd_dpdk/
+
+# Metadata Management Comparisson (X-Change vs. Copying) - with/without vectorized PMD - Forwarding DPDK - Trace+freqtune - single core
+test_xchg_l2fwd_dpdk_freq: deps-xchg
+	npf-compare fastclick --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} freqtune dpdk promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH}
+	rm -fr test_xchg_l2fwd_dpdk_freq/
+	mkdir -p test_xchg_l2fwd_dpdk_freq
+	mv packetmill-results* test_xchg_l2fwd_dpdk_freq/
 
 # Router Comparisson (Vanilla vs. PacketMill) - single core
 test_packetmill_router: deps-xchg
