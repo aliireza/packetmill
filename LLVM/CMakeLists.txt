@@ -9,3 +9,4 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(class-handpick-pass)
 add_subdirectory(class-stripmoduleflags-pass)
+add_subdirectory(class-xchg-inline-pass)
