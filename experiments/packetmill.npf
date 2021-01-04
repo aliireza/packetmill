@@ -352,7 +352,8 @@ rm -f $input_file
 
 %dual:import@client2 fastclick-replay-single-mt2 trace=/mnt/20190507.morning.merged.ip.anon.nopayload.pcap waitfor=COMPILED TIMING=$TIMING LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false
 %-udp:import@client fastclick-replay-single-mt trace=/mnt/traces/merged.transformed.pcap waitfor=COMPILED TIMING=$TIMING LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false
-%udp:import@client fastclick-udpgen-latency-single delay=5 waitfor=COMPILED LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false GEN_THREADS=4 GEN_LENGTH=$GEN_LENGTH
+//%udp:import@client fastclick-udpgen-latency-single delay=5 waitfor=COMPILED LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false GEN_THREADS=4 GEN_LENGTH=$GEN_LENGTH
+%udp:import@client fastclick-replay-single-mt delay=5 waitfor=COMPILED LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false GEN_THREADS=4 GEN_LENGTH=$GEN_LENGTH
 
 
 %ids:file@dut IDS
@@ -569,13 +570,19 @@ cd ${XCHG_EXAMPLES_PATH}
 
 if [ $TARGET = "xchg" ] ; then
     BIN=l2fwd-xchg
+    FOLD=$BIN
+    DOCOMP=0
+elif [ $TARGET = "inline" ] ; then
+    BIN=l2fwd-xchg-inline
+    FOLD=l2fwd-xchg
     DOCOMP=0
 else
     BIN=l2fwd
+    FOLD=$BIN
     DOCOMP=$COMP
 fi
 
-cd $BIN
+cd $FOLD
 echo "Launching $BIN with VEC $VEC and COMP $DOCOMP"
 unbuffer $GDB ./build/$BIN -w ${self:0:pci},rx_vec_en=$VEC,rxq_cqe_comp_en=$DOCOMP,mprq_en=$MPRQ --file-prefix tatata -l 0-0  -- -p 1 -q 1 -T 1 2>&1 | sed 's/[^a-zA-Z0-9]//g'
 echo "Finished..."

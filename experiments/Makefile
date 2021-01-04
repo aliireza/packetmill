@@ -85,21 +85,21 @@ AE: $(AE_SYNTHETIC)
 
 # Metadata Management Comparisson (X-Change vs. Overlaying vs. Copying) - Forwarding - single core
 test_xchg_fwd: deps-xchg
-	npf-compare ${CPY_CLANG_LTO_REPO}+vanilla:Copying ${OVRLY_CLANG_LTO_REPO}+vanilla:Overlaying ${XCHG_CLANG_LTO_REPO}+vanilla,xchg:X-Change  --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} novec udp fwd --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64,512,1024}
+	npf-compare ${CPY_CLANG_LTO_REPO}+vanilla:Copying ${OVRLY_CLANG_LTO_REPO}+vanilla:Overlaying ${XCHG_CLANG_LTO_REPO}+vanilla,xchg:X-Change  --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} novec udp udpgen fwd --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64,512,1024}
 	rm -fr test_xchg_fwd/
 	mkdir -p test_xchg_fwd
 	mv packetmill-results* test_xchg_fwd/
 
 # Metadata Management Comparisson (X-Change vs. Overlaying vs. Copying) - with/without vectorized PMD - Forwarding - single core
 test_xchg_fwd_vec: deps-xchg
-	npf-compare ${CPY_CLANG_LTO_REPO}+vanilla,novec:Copying-NOVEC ${CPY_CLANG_LTO_REPO}+vanilla:Copying-VEC ${OVRLY_CLANG_LTO_REPO}+vanilla,novec:Overlaying-NOVEC ${OVRLY_CLANG_LTO_REPO}+vanilla:Overlaying-VEC ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,novec:X-Change-NOVEC  ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,xchgvec:X-Change-VEC --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp fwd --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128]
+	npf-compare ${CPY_CLANG_LTO_REPO}+vanilla,novec:Copying-NOVEC ${CPY_CLANG_LTO_REPO}+vanilla:Copying-VEC ${OVRLY_CLANG_LTO_REPO}+vanilla,novec:Overlaying-NOVEC ${OVRLY_CLANG_LTO_REPO}+vanilla:Overlaying-VEC ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,novec:X-Change-NOVEC  ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,xchgvec:X-Change-VEC --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp udpgen fwd --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128]
 	rm -fr test_xchg_fwd_vec/
 	mkdir -p test_xchg_fwd_vec
 	mv packetmill-results* test_xchg_fwd_vec/
 
 # Metadata Management Comparisson (X-Change vs. Copying) - with/without vectorized PMD - Forwarding DPDK - single core
 test_xchg_l2fwd_dpdk: deps-xchg
-	npf-compare fastclick --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp dpdk promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128] 
+	npf-compare fastclick --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udpgen udp dpdk promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128] 
 	rm -fr test_xchg_l2fwd_dpdk/
 	mkdir -p test_xchg_l2fwd_dpdk
 	mv packetmill-results* test_xchg_l2fwd_dpdk/
@@ -113,28 +113,28 @@ test_xchg_l2fwd_dpdk_freq: deps-xchg
 
 # Router Comparisson (Vanilla vs. PacketMill) - single core
 test_packetmill_router: deps-xchg
-	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_REPO}+embedding,xchg:PacketMill --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} novec udp --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64,512,1024}
+	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_REPO}+embedding,xchg:PacketMill --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} novec udp udpgen --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64,512,1024}
 	rm -fr test_packetmill_router/
 	mkdir -p test_packetmill_router
 	mv packetmill-results* test_packetmill_router/
 
 # IDS+VLAN Comparisson (Vanilla vs. PacketMill) - single core
 test_packetmill_ids: deps-xchg
-	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_REPO}+embedding,xchg:PacketMill --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} ids vlan novec udp --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64,512,1024}
+	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_REPO}+embedding,xchg:PacketMill --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} ids vlan novec udp udpgen --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64,512,1024}
 	rm -fr test_packetmill_ids/
 	mkdir -p test_packetmill_ids
 	mv packetmill-results* test_packetmill_ids/
 
 # NAT Comparisson (Vanilla vs. PacketMill) - multicore
 test_packetmill_nat: deps-xchg
-	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_REPO}+embedding,xchg:PacketMill --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} nat scaling novec udp --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH}  GEN_LENGTH={1024}
+	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_REPO}+embedding,xchg:PacketMill --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} nat scaling novec udp udpgen --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH}  GEN_LENGTH={1024}
 	rm -fr test_packetmill_nat/
 	mkdir -p test_packetmill_nat
 	mv packetmill-results* test_packetmill_nat/
 
 # Check LLVM Pass (reordering)
 test_llvm_pass_router: deps
-	npf-compare ${CPY_CLANG_REPO}+vanilla:NoLTO ${CPY_CLANG_LTO_REPO}+vanilla:ClickLTO ${CPY_CLANG_LTO_REPO}+clickopt:ReorderLTO --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} FREQ=3000 GEN_LENGTH={64,512,1024}
+	npf-compare ${CPY_CLANG_REPO}+vanilla:NoLTO ${CPY_CLANG_LTO_REPO}+vanilla:ClickLTO ${CPY_CLANG_LTO_REPO}+clickopt:ReorderLTO --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp udpgen --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} FREQ=3000 GEN_LENGTH={64,512,1024}
 	rm -fr test_llvm_pass_router/
 	mkdir -p test_llvm_pass_router
 	mv packetmill-results* test_llvm_pass_router/
@@ -156,7 +156,7 @@ test_sourcecode_router: deps
 # Compare Vanilla FastClick vs. BOLT vs. PGO (clang)
 test_bolt_pgo: perf.data.bolt code.prof deps
 	export PROFILE_PATH=${PROFILE_PATH}
-	npf-compare ${CLANG_BOLT_REPO}+vanilla:Vanilla ${CLANG_PGO_REPO}+vanilla:PGO ${CLANG_BOLT_REPO}+vanilla,boltpgo:Bolt --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --force-build --variable ${TOOLS_PATH} FREQ=3000
+	npf-compare ${CLANG_BOLT_REPO}+vanilla:Vanilla ${CLANG_PGO_REPO}+vanilla:PGO ${CLANG_BOLT_REPO}+vanilla,boltpgo:Bolt --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} --config n_runs=${N_RUNS} ${NPF_FLAGS} --force-build --variable ${TOOLS_PATH} FREQ=3000 
 	rm -fr test_bolt_pgo/
 	mkdir -p test_bolt_pgo
 	mv packetmill-results* test_bolt_pgo/
@@ -165,7 +165,7 @@ test_bolt_pgo: perf.data.bolt code.prof deps
 
 # Apply BOLT to FastClick
 test_bolt: perf.data.bolt  deps
-	npf-compare ${CLANG_BOLT_REPO}+vanilla,boltpgo:Bolt --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} noperf --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --force-build --variable ${TOOLS_PATH}
+	npf-compare ${CLANG_BOLT_REPO}+vanilla,boltpgo:Bolt --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} noperf --config n_runs=${N_RUNS} ${NPF_FLAGS} --force-build --variable ${TOOLS_PATH}
 	rm -fr test_bolt/
 	mkdir -p test_bolt
 	mv packetmill-results* test_bolt/
@@ -173,7 +173,7 @@ test_bolt: perf.data.bolt  deps
 
 # Compare Vanilla vs. Vanilla+BOLT FastClick
 test_compare_bolt: perf.data.bolt  deps
-	npf-compare ${CLANG_BOLT_REPO}+vanilla:Vanilla ${CLANG_BOLT_REPO}+vanilla,boltpgo:Vanilla+Bolt --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} freqtune --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --force-build --variable ${TOOLS_PATH}
+	npf-compare ${CLANG_BOLT_REPO_SUBMITTED}+vanilla:Vanilla ${CLANG_BOLT_REPO_SUBMITTED}+vanilla,boltpgo:Vanilla+Bolt --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} freqtune --config n_runs=${N_RUNS} ${NPF_FLAGS} --force-build --variable ${TOOLS_PATH}
 	rm -fr test_compare_bolt/
 	mkdir -p test_compare_bolt
 	mv packetmill-results* test_compare_bolt/
@@ -182,7 +182,7 @@ test_compare_bolt: perf.data.bolt  deps
 # Apply PGO (clang) to FastClick
 test_pgo: code.prof deps
 	export PROFILE_PATH=${PROFILE_PATH}
-	npf-compare  ${CLANG_PGO_REPO}+vanilla:PGO --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --force-build --variable ${TOOLS_PATH} FREQ=3000
+	npf-compare  ${CLANG_PGO_REPO}+vanilla:PGO --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} --config n_runs=${N_RUNS} ${NPF_FLAGS} --force-build --variable ${TOOLS_PATH} FREQ=3000 
 	rm -fr test_pgo/
 	mkdir -p test_pgo
 	mv packetmill-results* test_pgo/
@@ -191,14 +191,14 @@ test_pgo: code.prof deps
 
 # BOLT perf data
 perf.data.bolt: deps
-	npf-compare ${CLANG_BOLT_REPO}+vanilla,profilebolt:Profile --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} noperf --config n_runs=1 ${NPF_INT_FLAGS} --variable ${TOOLS_PATH}
+	npf-compare ${CLANG_BOLT_REPO_SUBMITTED}+vanilla,profilebolt:Profile --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} noperf --config n_runs=1 ${NPF_FLAGS} --force-build --variable ${TOOLS_PATH} FREQ=3000
 	rm -fr packetmill-results*
 
 	rm -fr packetmill-results*
 
 # PGO perf data
 perf.data.pgo: deps
-	npf-compare ${CLANG_PGO_PROFILE_REPO}+vanilla,profilepgo:Profile --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} --config n_runs=1 ${NPF_INT_FLAGS} --variable ${TOOLS_PATH}
+	npf-compare ${CLANG_PGO_PROFILE_REPO}+vanilla,profilepgo:Profile --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} noperf --config n_runs=1 ${NPF_FLAGS} --force-build --variable ${TOOLS_PATH}
 	rm -fr packetmill-results*
 
 # PGO clang data
