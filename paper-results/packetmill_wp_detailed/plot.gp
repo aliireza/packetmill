@@ -24,9 +24,28 @@ do for [k=1:5] { # N
 	# print sprintf("\n")
 }
 
+set print 'wp-llc-load-misses-improve-stats.dat'
+wp(n) = word("0 1 2 3 4 5", n) # Real values 1 4 8 12 16 20
+print sprintf("#%s %s %s %s", "N", "W", "S", "LLC-load-misses-avg-C0-median", "LLC-load-misses-avg-C0-Vanilla")
+do for [k=1:5] { # N
+	do for [i=1:6] { # W
+	    do for [j=1:21] { #S
+	    	z=(k-1)*126+(i-1)*21+j
+	        stats 'VanillaLLC-load-misses-avg-C0.csv' using z prefix "VALLC" nooutput
+	        stats 'PacketMillLLC-load-misses-avg-C0.csv' using z prefix "PMLLC" nooutput
+	        print sprintf("%1.0f %s %1.0f %1.2f %1.2f %1.2f", k, wp(i), j-1, value( (PMLLC_median - VALLC_median)*100/VALLC_median ), value(VALLC_median), value(PMLLC_median))
+	    }
+	    print sprintf("")
+	}
+	# print sprintf("\n")
+}
 
 stats 'wp-throughput-improve-stats.dat' using 4 prefix "IMP" nooutput
 stats 'wp-throughput-improve-stats.dat' using 5 prefix "VA" nooutput
+
+
+stats 'wp-llc-load-misses-improve-stats.dat' using 4 prefix "IMPLLC" nooutput
+stats 'wp-llc-load-misses-improve-stats.dat' using 5 prefix "VALLC" nooutput
 
 
 set xlabel "Compute-Intensiveness\n{/*0.8 Number of Generated pseudo-random Numbers}" font "Helvetica,14" offset 0,-1.5 #rotate by -8.5
@@ -126,6 +145,17 @@ plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.d
 "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with points ls 2 title "PacketMill (X-Change + Source-Code Optimizations)",\
 "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with lines ls 2 dt 4 notitle; 
 
+
+
+set title "N=2 (Number of Accesses per Packet) and W=4 (Compute-Intensiveness)"
+
+set output "compute-fixed-N2-W4.pdf"
+plot "<awk '{if($1==2 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with points ls 1 title "Vanilla (Copying)",\
+"<awk '{if($1==2 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==2 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with points ls 2 title "PacketMill (X-Change + Source-Code Optimizations)",\
+"<awk '{if($1==2 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with lines ls 2 dt 4 notitle; 
+
+
 set xlabel "Compute-Intensiveness\n{/*0.8 Number of Generated pseudo-random Numbers}" font "Helvetica,14" offset 0,0
 
 set title "N=2 (Number of Accesses per Packet) and S=2 MB (Memory Footprint)"
@@ -151,3 +181,24 @@ plot "<awk '{if($2==1 && $3==2){print $1,$5,$6;}}' wp-throughput-improve-stats.d
 "<awk '{if($2==1 && $3==2){print $1,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with lines ls 1 dt 2 notitle,\
 "<awk '{if($2==1 && $3==2){print $1,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with points ls 2 title "PacketMill (X-Change + Source-Code Optimizations)",\
 "<awk '{if($2==1 && $3==2){print $1,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with lines ls 2 dt 4 notitle; 
+
+
+set title "N=1 (Number of Accesses per Packet) and W=4 (Compute-Intensiveness)"
+set ylabel "LLC Load Misses (k)" font "Helvetica,14" offset 0,0
+set xlabel "Memory Footprint\n{/*0.8 Size of the Accessed Memory (MB)}" font "Helvetica,14" offset 0,0
+set yrange [0:60]
+set xrange[-1:21]
+set ytics 0,10,60 font "Helvetica, 12" offset 0,0
+set xtics 0,2,20 font "Helvetica, 12" offset 0,0
+
+
+set output "compute-fixed-N1-W4-llc-load-misses.pdf"
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-improve-stats.dat" using 1:($2/1000) with points ls 1 title "Vanilla (Copying)",\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-improve-stats.dat" using 1:($2/1000) with lines ls 1 dt 2 notitle;
+
+
+set title "N=2 (Number of Accesses per Packet) and W=4 (Compute-Intensiveness)"
+
+set output "compute-fixed-N2-W4-llc-load-misses.pdf"
+plot "<awk '{if($1==2 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-improve-stats.dat" using 1:($2/1000) with points ls 1 title "Vanilla (Copying)",\
+"<awk '{if($1==2 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-improve-stats.dat" using 1:($2/1000) with lines ls 1 dt 2 notitle;
