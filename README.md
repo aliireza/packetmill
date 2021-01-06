@@ -54,7 +54,7 @@ The experiments are located at `experiments/`. The folder has a `Makefile` and `
 
 ## Testbed
 
-Our experiments mainly requires `npf`, `X-Change`, `FastClick`, and `LLVM toolchain`. There is a simple bash script (`setup_repo.sh`) that could help you to clone/compile different repositories, but you should mainly rely on this `README.md`. 
+Our experiments mainly requires `npf`, `X-Change`, `FastClick`, `LLVM toolchain`, `perf`, and `pmu-tools`. There is a simple bash script (`setup_repo.sh`) that could help you to clone/compile different repositories, but you should mainly rely on this `README.md`. 
 
 ### Network Performance Framework (NPF) Tool
 
@@ -64,28 +64,46 @@ You can install `npf` via the following command:
 python3 -m pip install --user npf
 ```
 
+**Do not forget to add `export PATH=$PATH:~/.local/bin` to `~/.bashrc` or `~/.zshrc`. Otherwise, you can run `npf-compare` and `npf-run` commands.** 
+
 NPF will look for `cluster/` and `repo/` in your current working/testie directory. We have included the required `repo` for our experiments and a sample `cluster` template, available at `experiment/`. To setup your cluster, please check the [guidelines][npf-setup] for our previous paper. Additionally, you can check the [NPF README][npf-readme] file.
 
-### X-Change (Modified DPDK)
+### X-Change (Modified DPDK) and Normal DPDK
 
-To build X-Change with clang and clang (LTO), you can run the following commands:
+To build X-Change with clang (LTO), you can run the following commands:
 
 ```bash
 git clone git@github.com:tbarbette/xchange.git
 cd xchange
-make install T=x86_64-native-linux-clang
 make install T=x86_64-native-linux-clanglto
-make install T=x86_64-native-linux-gcc
 ```
 
-After building X-Change, you have to define `RTE_SDK` and `RTE_TARGET`. To do so, run:
+After building X-Change, you have to define `XCHG_SDK` and `XCHG_TARGET`. To do so, run:
 
 ```bash
-export RTE_SDK=/home/alireza/packetmill/xchange/
+export XCHG_SDK=/home/alireza/packetmill/xchange/
+export XCHG_TARGET=x86_64-native-linux-clanglto
+```
+
+We also use normal DPDK v20.02 in some scenarios. To build it, you can run the following commands:
+
+```bash
+git clone git@github.com:tbarbette/xchange.git dpdk
+cd dpdk
+git checkout v20.02
+make install T=x86_64-native-linux-gcc
+make install T=x86_64-native-linux-clang
+```
+
+After building DPDK, you have to define `RTE_SDK` and `RTE_TARGET`. To do so, run:
+
+```bash
+export RTE_SDK=/home/alireza/packetmill/dpdk/
 export RTE_TARGET=x86_64-native-linux-gcc
 ```
 
-**Note that `NPF` requires all three builds to perform the experiments. It uses `gcc` build for packet generation (i.e., default case) and the other two for other scenarios at the server side.**
+
+**Note that `NPF` requires all three builds to perform the experiments. It uses `gcc` build (of DPDK v20.02) for packet generation (i.e., default case) and the other two (i.e., X-Change with `clanglto` and DPDK v20.02 with `clang`) for other scenarios at the server side.**
 
 Fore more information, please check X-Change [repository][x-change-repo].
 
@@ -100,6 +118,14 @@ sudo ./llvm-clang.sh 10
 
 This command will also create some links to different LLVM tools and clang commands. Check the script (`llvm-clang.sh`) for more details.
 
+### Perf and PMU Tools
+
+We use `perf` and `pmu-tools` to gather microarchitectural metrics. To install them, run the following commands:
+
+```bash
+sudo apt-get install linux-cloud-tools-$(uname -r) linux-tools-$(uname -r)
+git clone https://github.com/andikleen/pmu-tools.git
+```
 
 ### FastClick
 
