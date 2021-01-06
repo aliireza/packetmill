@@ -67,10 +67,15 @@ endif
 	@:
 
 deps-xchg: deps
+ifndef XCHG_SDK
+        $(error Please define XCHG_SDK environment variable)
+endif
+ifndef XCHG_TARGET
+                $(error Please define XCHG_TARGET environment variable)
+endif
 ifeq ($(wildcard ${XCHG_SDK}/${XCHG_TARGET}/),)
                 $(error The folder ${XCHG_SDK}/${XCHG_TARGET} is not found. Please install X-Change as per the README.md documentation and set the XCHG_SDK and XCHG_TARGET environment variables)
 endif
-
 ifeq ($(wildcard ${XCHG_SDK}/lib/librte_xchg/),)
 		$(error X-Change was found, but it does not seem to be the X-Change version. Please follow the guide in README.md)
 endif
