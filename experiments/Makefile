@@ -59,7 +59,7 @@ ifndef RTE_TARGET
 		$(error Please define RTE_TARGET environment variable)
 endif
 ifeq ($(wildcard ${RTE_SDK}/${RTE_TARGET}/),)
-		$(error The folder ${RTE_SDK}/${RTE_TARGET} is not found. Please install DPDK/X-Change as per the README.md documentation and set the RTE_SDK and RTE_TARGET environment variables)
+		$(error The folder ${RTE_SDK}/${RTE_TARGET} is not found. Please install DPDK  as per the README.md documentation and set the RTE_SDK and RTE_TARGET environment variables)
 endif
 ifeq ($(shell which npf-compare),)
 		$(error The NPF toolkit is required to manage experiments. Install it with python3 -m pip install --user npf)
@@ -67,8 +67,12 @@ endif
 	@:
 
 deps-xchg: deps
-ifeq ($(wildcard ${RTE_SDK}/lib/librte_xchg/),)
-		$(error DPDK was found, but it does not seem to be the X-Change version. Please follow the guide in README.md)
+ifeq ($(wildcard ${XCHG_SDK}/${XCHG_TARGET}/),)
+                $(error The folder ${XCHG_SDK}/${XCHG_TARGET} is not found. Please install X-Change as per the README.md documentation and set the XCHG_SDK and XCHG_TARGET environment variables)
+endif
+
+ifeq ($(wildcard ${XCHG_SDK}/lib/librte_xchg/),)
+		$(error X-Change was found, but it does not seem to be the X-Change version. Please follow the guide in README.md)
 endif
 	@:
 
@@ -148,7 +152,7 @@ test_packetmill_wp: deps-xchg
 
 # Source-code Modifications Router via Copying (Vanilla Click) - Router - single core
 test_sourcecode_router: deps
-	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${CPY_CLANG_REPO}+devir:Devirtualize ${CPY_CLANG_REPO}+constants:Constant ${CPY_CLANG_REPO}+graph:Graph ${CPY_CLANG_REPO}+embedding:All --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128]
+	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${CPY_CLANG_REPO}+devir:Devirtualize ${CPY_CLANG_REPO}+constants:Constant ${CPY_CLANG_REPO}+graph:Graph ${CPY_CLANG_REPO}+embedding:All --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp udpgen --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128]
 	rm -fr test_sourcecode_router/
 	mkdir -p test_sourcecode_router
 	mv packetmill-results* test_sourcecode_router/

@@ -353,7 +353,7 @@ rm -f $input_file
 %dual:import@client2 fastclick-replay-single-mt2 trace=/mnt/20190507.morning.merged.ip.anon.nopayload.pcap waitfor=COMPILED TIMING=$TIMING LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false
 %-udp:import@client fastclick-replay-single-mt trace=/mnt/traces/merged.transformed.pcap waitfor=COMPILED TIMING=$TIMING LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false
 //%udp:import@client fastclick-udpgen-latency-single delay=5 waitfor=COMPILED LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false GEN_THREADS=4 GEN_LENGTH=$GEN_LENGTH
-%udp:import@client fastclick-replay-single-mt delay=5 waitfor=COMPILED LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false GEN_THREADS=4 GEN_LENGTH=$GEN_LENGTH
+%udp:import@client fastclick-replay-single-mt delay=5 waitfor=COMPILED LIMIT=1000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=50 autokill=false GEN_THREADS=4 GEN_RX_THREADS=4 GEN_LENGTH=$GEN_LENGTH
 
 
 %ids:file@dut IDS
@@ -745,6 +745,7 @@ wrmsr 0xC8B $ddio_value
 
 // Setting RTE_SDK
 export RTE_SDK=$XCHG_PATH
+export XCHG_SDK=$XCHG_PATH
 
 
 if [ $BOLT -eq 1 ] ; then
