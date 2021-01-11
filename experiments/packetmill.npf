@@ -22,6 +22,7 @@ var_lim+={result-THROUGHPUT:0-}
 CPU=1
 DPDK_CPU=1
 BURST=32
+-iterative:IGNORE=1
 
 // Default configurations for Compilation
 
@@ -207,10 +208,10 @@ deviropt:JMPS=0
 
 // DPDK example (l2fwd-xchg)
 
-dpdk:VEC={0,1}
+dpdk,-dpdkfixed:VEC?={0,1}
 dpdk:COMP=0
 dpdk:MPRQ=0 //This is not relevant
-dpdk:TARGET={"fwd","xchg"}
+dpdk,-dpdkfixed:TARGET?={fwd,xchg}
 
 // Pass the gdb tags to run packetmill/click under gdb and see where things go bad
 gdb:GDB=gdb -ex run -ex "signal 2" -ex bt -batch -args
@@ -552,7 +553,7 @@ input[0] ->
 echo "EVENT COMPILED"
 
 // Set processor frequency
-sudo cpupower frequency-set -d ${FREQ}M -u ${FREQ}M
+sudo cpupower --cpu 0-\$(( $(nproc) - 1)) frequency-set -d ${FREQ}M -u ${FREQ}M
 
 // Enabling MSR
 modprobe msr 
@@ -568,11 +569,11 @@ wrmsr 0xC8B $ddio_value
 
 cd ${XCHG_EXAMPLES_PATH}
 
-if [ $TARGET = "xchg" ] ; then
+if [ "$TARGET" = "xchg" ] ; then
     BIN=l2fwd-xchg
     FOLD=$BIN
     DOCOMP=0
-elif [ $TARGET = "inline" ] ; then
+elif [ "$TARGET" = "inline" ] ; then
     BIN=l2fwd-xchg-inline
     FOLD=l2fwd-xchg
     DOCOMP=0
@@ -602,7 +603,7 @@ echo "RAND_SEED is $CLICK_ELEM_RAND_SEED"
 // Setting RAND
 export CLICK_ELEM_RAND_MAX=$RAND_MAX
 
-sudo cpupower frequency-set -d 1200M -u 3700M
+sudo cpupower --cpu 0-\$(( $(nproc) - 1)) frequency-set -d 1200M -u 3700M
 
 echo "" > CONFIGBASE
 cat IDS >> CONFIGBASE
@@ -729,7 +730,7 @@ fi
 
 echo "EVENT COMPILED"
 // Set processor frequency
-sudo cpupower frequency-set -d ${FREQ}M -u ${FREQ}M
+sudo cpupower --cpu 0-\$(( $(nproc) - 1)) frequency-set -d ${FREQ}M -u ${FREQ}M
 
 // Enabling MSR
 modprobe msr 
