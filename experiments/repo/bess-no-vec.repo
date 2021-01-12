@@ -1,4 +1,4 @@
-name=BESS
+name=BESS-NOVEC
 url=https://github.com/aliireza/bess.git
 branch=no-vec
 bin_folder=bin
