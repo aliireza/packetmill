@@ -9,7 +9,9 @@ PROFILE?=perf
 MAKEFLAGS := -j 1
 
 # NPF Clusters (dut.node and pkt-gen.node should be defined in cluster/)
+ifeq ("${NPF_CLUSTER}","")
 NPF_CLUSTER=client=client-100G dut=dut-100G client2=client2-100G
+endif
 
 NPF_OUTPUT_NAME?=packetmill-results.pdf
 NPF_OUTPUT= --output --output-columns x all --max-results --graph-filename ${NPF_OUTPUT_NAME}
