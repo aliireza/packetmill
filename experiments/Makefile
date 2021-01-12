@@ -20,7 +20,7 @@ DUT_PMU_PATH=$(CURDIR)/../pmu-tools # PMU Tools
 XCHG_PATH=$(CURDIR)/../xchange # X-Change (DPDK)
 XCHG_EXAMPLES_PATH=$(CURDIR)/../xchange/examples/ # X-Change (DPDK) - Examples
 #BESS_PATH=$(CURDIR)/../bess # BESS
-VPP_PATH=$(CURDIR)/../vpp.2005 # VPP
+#VPP_PATH=$(CURDIR)/../vpp.2005 # VPP
 DUT_BOLT_PATH=$(CURDIR)/../llvm-bolt/build/bin/ # BOLT Binary Optimizer
 DUT_AUTOFDO_PATH=$(CURDIR)/../autofdo/ # Autofdo Tool
 LLVM_PASS_PATH=$(CURDIR)/../LLVM # LLVM Passes
@@ -31,7 +31,7 @@ TOOLS_PATH += DUT_PMU_PATH=${DUT_PMU_PATH}
 TOOLS_PATH += XCHG_PATH=${XCHG_PATH}
 TOOLS_PATH += XCHG_EXAMPLES_PATH=${XCHG_EXAMPLES_PATH}
 TOOLS_PATH += BESS_PATH=
-TOOLS_PATH += VPP_PATH=${VPP_PATH}
+TOOLS_PATH += VPP_PATH=
 TOOLS_PATH += DUT_BOLT_PATH=${DUT_BOLT_PATH}
 TOOLS_PATH += DUT_AUTOFDO_PATH=${DUT_AUTOFDO_PATH}
 TOOLS_PATH += LLVM_PASS_PATH=${LLVM_PASS_PATH}
@@ -51,6 +51,8 @@ CLANG_PGO_PROFILE_REPO=packetmill-clang-cpy-pgo-profile
 CLANG_BOLT_REPO=packetmill-clang-cpy-bolt
 BESS_REPO=bess
 BESS_NOVEC_REPO=bess-no-vec
+VPP_REPO=vpp
+VPP_NOVEC_REPO=vpp-no-vec
 
 # Profiling related for PGO
 CREATE_PROF := $(addsuffix create_llvm_prof,$(DUT_AUTOFDO_PATH))
@@ -140,7 +142,7 @@ test_bess: deps-xchg
 	mv packetmill-results* test_bess/
 
 test_vpp: deps-xchg
-	npf-compare local+vpp:VPP --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables "GEN_LENGTH=[64-1500#128]" --force-retest
+	npf-compare ${VPP_REPO}+vpp:VPP ${VPP_NOVEC_REPO}+vpp:VPP --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables "GEN_LENGTH=[64-1500#128]" --force-retest
 	rm -fr test_vpp/
 	mkdir -p test_vpp
 	mv packetmill-results* test_vpp/

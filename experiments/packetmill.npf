@@ -668,6 +668,7 @@ wrmsr 0x620 $uncore_value
 // Setting DDIO WAYS
 wrmsr 0xC8B $ddio_value
 
+VPP_PATH=${NPF_BUILD}/
 cp startup_vpp.sh ${VPP_PATH}
 cp startup-p2p.conf ${VPP_PATH}
 cp vppctl_p2p.sh ${VPP_PATH}
@@ -681,6 +682,7 @@ echo "EVENT VPP_BEGIN"
 
 %vpp:script@dut sudo=true autokill=false waitfor=VPP_BEGIN delay=15
 
+VPP_PATH=${NPF_BUILD}/
 cd ${VPP_PATH}
 
 echo "Setup xconnect"
@@ -697,7 +699,7 @@ sleep 1000
 
 #!/bin/bash
 
-export T=${VPP_PATH}/build-root/install-vpp-native/vpp
+export T=${NPF_BUILD}/build-root/install-vpp-native/vpp
 config="p2p"
 
 sudo mkdir -p /tmp/vpp
@@ -748,7 +750,7 @@ dpdk {
 
 %vpp:file@dut vppctl_p2p.sh
 
-export VPP_ROOT='${VPP_PATH}'
+export VPP_ROOT='${NPF_BUILD}'
 export STARTUP_CONF='startup-p2p.conf'
 export NAMELC0P0="HundredGigabitEthernet17/0/0" # Should be set accordingly
 
