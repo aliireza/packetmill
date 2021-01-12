@@ -16,6 +16,8 @@ var_names+={GEN_LENGTH:Packet Length (Bytes)}
 var_names+={DPDK_CPU:Number of Cores}
 var_lim+={result-THROUGHPUT:0-}
 
+results_expect={THROUGHPUT}
+
 %variables
 
 // Number of CPU cores and Burst Size
