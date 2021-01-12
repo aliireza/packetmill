@@ -788,8 +788,11 @@ wrmsr 0x620 $uncore_value
 // Setting DDIO WAYS
 wrmsr 0xC8B $ddio_value
 
-cp p2p_phys.bess ${BESS_PATH}
-cp p2p.bess ${BESS_PATH}
+BESS_PATH=${NPF_BUILD}/
+
+echo ${BESS_PATH}/bessctl/conf/port/
+cp p2p_phys.bess ${BESS_PATH}/bessctl/conf/port/
+cp p2p.bess ${BESS_PATH}/bessctl/conf/port/
 
 cd ${BESS_PATH}
 bessctl/bessctl daemon start
@@ -800,6 +803,7 @@ bessctl/bessctl run port/$(("p2p" if $TOUCH else "p2p_phys"))
 echo "EVENT COMPILED"
 
 %bess:exit
+BESS_PATH=${NPF_BUILD}/
 cd ${BESS_PATH}
 bessctl/bessctl daemon stop
 

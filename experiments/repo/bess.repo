@@ -1,0 +1,9 @@
+name=BESS
+url=https://github.com/aliireza/bess.git
+branch=master
+bin_folder=bin
+bin_name=bessd
+configure=sudo mst start
+make=sudo ./build.py
+clean=sudo ./build.py clean
+tags=bess

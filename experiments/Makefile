@@ -19,7 +19,7 @@ NPF_INT_FLAGS := --show-full --rand-env 65536 --build-folder ./npf_build/ --forc
 DUT_PMU_PATH=$(CURDIR)/../pmu-tools # PMU Tools
 XCHG_PATH=$(CURDIR)/../xchange # X-Change (DPDK)
 XCHG_EXAMPLES_PATH=$(CURDIR)/../xchange/examples/ # X-Change (DPDK) - Examples
-BESS_PATH=$(CURDIR)/../bess # BESS
+#BESS_PATH=$(CURDIR)/../bess # BESS
 VPP_PATH=$(CURDIR)/../vpp.2005 # VPP
 DUT_BOLT_PATH=$(CURDIR)/../llvm-bolt/build/bin/ # BOLT Binary Optimizer
 DUT_AUTOFDO_PATH=$(CURDIR)/../autofdo/ # Autofdo Tool
@@ -30,7 +30,7 @@ TOOLS_PATH :=
 TOOLS_PATH += DUT_PMU_PATH=${DUT_PMU_PATH}
 TOOLS_PATH += XCHG_PATH=${XCHG_PATH}
 TOOLS_PATH += XCHG_EXAMPLES_PATH=${XCHG_EXAMPLES_PATH}
-TOOLS_PATH += BESS_PATH=${BESS_PATH}
+TOOLS_PATH += BESS_PATH=
 TOOLS_PATH += VPP_PATH=${VPP_PATH}
 TOOLS_PATH += DUT_BOLT_PATH=${DUT_BOLT_PATH}
 TOOLS_PATH += DUT_AUTOFDO_PATH=${DUT_AUTOFDO_PATH}
@@ -49,6 +49,8 @@ XCHG_CLANG_LTO_REPO_STRIPPED=packetmill-clang-flto-xchg-stripped
 CLANG_PGO_REPO=packetmill-clang-cpy-pgo
 CLANG_PGO_PROFILE_REPO=packetmill-clang-cpy-pgo-profile
 CLANG_BOLT_REPO=packetmill-clang-cpy-bolt
+BESS_REPO=bess
+BESS_NOVEC_REPO=bess-no-vec
 
 # Profiling related for PGO
 CREATE_PROF := $(addsuffix create_llvm_prof,$(DUT_AUTOFDO_PATH))
@@ -132,7 +134,7 @@ test_stripped: deps-xchg
 	mv packetmill-results* test_stripped/
 
 test_bess: deps-xchg
-	npf-compare local+bess:BESS --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables "GEN_LENGTH=[64-1500#128]" --force-retest
+	npf-compare ${BESS_REPO}+bess:BESS ${BESS_NOVEC_REPO}+bess:BESS-NOVEC --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables "GEN_LENGTH=[64-1500#128]" --force-retest
 	rm -fr test_bess/
 	mkdir -p test_bess
 	mv packetmill-results* test_bess/
