@@ -7,7 +7,7 @@ Copyright (c) 2020, Alireza Farshin, KTH Royal Institute of Technology - All Rig
 %config
 timeout=600
 
-accept_zero={EL.*,EL}
+accept_zero={EL.*,EL,LLC-loads-*,LLC-load-misses-*}
 
 graph_tick_params={direction:in,which:both,axis:both,grid_linestyle:dotted,bottom:true,top:true,right:true,left:true,grid_color:#444444}
 graph_grid_linestyle=dotted
@@ -45,6 +45,12 @@ norand:RAND_SEED=0
 norand:RAND_MAX=0
 ids:CHKSUM=0
 BOLT=0
+
+// BESS variables
+bess:TOUCH={0,1}
+
+// BESS variables
+bess:TOUCH={0,1}
 
 // BOLT variables
 boltpgo:BOLT=1
@@ -237,6 +243,11 @@ PERF_OUTPUT=perf.csv
 PERF_CORE=0 // For profiling
 PERF_RUN_CORE=2 // For running the profiler
 
+
+// PQOS variables
+PQOS_OUTPUT=pqos.log
+PQOS_MAX_CORE=1
+
 //Variables supposed to be overriden (we do this to avoid the overriden message):
 DUT_PMU_PATH=
 DUT_BOLT_PATH=
@@ -260,7 +271,7 @@ wp:WP=EXPAND( -> WorkPackage(S $WP_S, N $WP_N, R 0, PAYLOAD false, W $WP_W) )
 
 PERF_EVENTS=branches,branch-misses,cache-references,cache-misses,cycles,instructions,L1-dcache-load-misses,L1-dcache-loads,L1-dcache-stores,L1-icache-load-misses,LLC-load-misses,LLC-loads,LLC-stores,LLC-store-misses  //Add new events here
 
-novec:MLX_OPT?=,rx_vec_en=0
+novec:MLX_OPT?=,rx_vec_en=0,rxq_cqe_comp_en=0,mprq_en=0
 xchgvec:MLX_OPT?=,rxq_cqe_comp_en=0
 noinline:MLX_OPT+=,rxq_cqe_comp_en=0,mprq_en=0,txq_inline_max=0
 GDB?=
@@ -284,19 +295,19 @@ test $STATIC -le $DEVIRTUALIZE
 test $INLINE -le $DEVIRTUALIZE
 //test $OPT -le $EMBED
 
-%-noperf:script@dut sudo=true name=profiler autokill=false waitfor=GEN_BEGIN delay=0
+%perf,-pqos:script@dut sudo=true name=profiler autokill=false waitfor=GEN_BEGIN delay=0
 
 // Run Perf 
 bash perf.sh
 
-%script@dut sudo=true name=perf-parser autokill=true waitfor=GEN_DONE delay=0
+%perf,-pqos:script@dut sudo=true name=perf-parser autokill=true waitfor=GEN_DONE delay=0
 
 // Processing Perf output
 echo "Launching Perf script"
 bash perf-processing.sh $PERF_OUTPUT
 
 
-%file@dut perf.sh
+%perf,-pqos:file@dut perf.sh
 
 #============================================================================================#
 # perf.sh : Script to launch Perf
@@ -308,7 +319,7 @@ taskset -c $PERF_RUN_CORE perf stat -x\, -I $PERF_INTERVAL -e $PERF_EVENTS -C $P
 #============================================================================================#
 
 
-%-noperf:file@dut perf-processing.sh
+%perf,-pqos:file@dut perf-processing.sh
 
 #====================================================s========================================#
 # perf-processing.sh : Script to process Perf output to get performance bottlenecks
@@ -350,6 +361,90 @@ rm -f $input_file
 
 #============================================================================================#
 
+
+%pqos:script@dut sudo=true name=profiler autokill=false waitfor=GEN_BEGIN delay=0
+
+// Enabling MSR
+modprobe msr 
+
+// Setup CAT configuration
+echo "Resetting CAT"
+pqos -R
+
+// Run PQOS monitoring
+bash pqos.sh
+
+%pqos:script@dut sudo=true name=pqos-parser autokill=true waitfor=GEN_DONE delay=0
+
+// Processing pqos output
+echo "Launching PQOS script"
+bash pqos-processing.sh $PQOS_OUTPUT
+rm -f $PQOS_OUTPUT
+
+
+%file@dut pqos.sh
+
+#============================================================================================#
+# pqos.sh : Script to launch pqos
+#============================================================================================#
+
+echo "Launching PQOS"
+pqos -m "all:0-$(($PQOS_MAX_CORE))" -o $PQOS_OUTPUT
+
+
+#============================================================================================#
+
+
+%file@dut pqos-processing.sh
+
+#============================================================================================#
+# pqos-processing.sh : Script to process pqos output to get LLC misses and other events
+#============================================================================================#
+
+input_file=$1
+monitoring_cores=$(seq 0 $PQOS_MAX_CORE)
+column=$(seq 2 6)
+column_name=("NA" "RESULT-CORE" "RESULT-IPC" "RESULT-LLCMISSES" "RESULT-LLCOCCUPANCY" "RESULT-MBL" "RESULT-MBR")
+column_scale=(" " " " " " "k" "KB" "MB/s" "MB/s")
+
+
+for c in $monitoring_cores; do
+	for col in $column;do
+
+	#Sum
+	result=`cat $input_file\
+	| awk -v core=$c '{if($1!="TIME" && $1==core) print $0}'\
+	| awk -v column=$col '{print $column}'\
+	| awk '{ total +=$1;count++;} END{print total}'`
+	echo ${column_name[$col]}"-sum-C"$c" "$result" "${column_scale[$col]}
+
+	#Average
+	result=`cat $input_file\
+	| awk -v core=$c '{if($1!="TIME" && $1==core) print $0}'\
+	| awk -v column=$col '{print $column}'\
+	| awk '{ total +=$1;count++;} END{print total/count}'`
+	echo ${column_name[$col]}"-avg-C"$c" "$result" "${column_scale[$col]}
+
+	# #Median
+	# result=`cat $input_file\
+	# | awk -v core=$c '{if($1!="TIME" && $1==core) print $0}'\
+	# | awk -v column=$col '{print $column}'\
+	# | awk 'BEGIN{max=0}{if ($1>max) max=$1; fi} END{print max/1k}'\
+	# | sort -n \
+	# | awk '{ a[i++]=$1; }END { x=int((i+1)/2); if (x < (i+1)/2) print (a[x-1]+a[x])/2; else print a[x-1];}'`
+	# echo ${column_name[$col]}"-median-C"$c" "$result" "${column_scale[$col]}
+
+	# #Maximum
+	# result=`cat $input_file\
+	# | awk -v core=$c '{if($1!="TIME" && $1==core) print $0}'\
+	# | awk -v column=$col '{print $column}'\
+	# | awk 'BEGIN{max=0}{if ($1>max) max=$1; fi} END{print max/1k}'`
+	# echo ${column_name[$col]}"-max-C"$c" "$result" "${column_scale[$col]}
+	
+	done
+done
+
+#============================================================================================#
 
 %dual:import@client2 fastclick-replay-single-mt2 trace=/mnt/20190507.morning.merged.ip.anon.nopayload.pcap waitfor=COMPILED TIMING=$TIMING LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false
 %-udp:import@client fastclick-replay-single-mt trace=/mnt/traces/merged.transformed.pcap waitfor=COMPILED TIMING=$TIMING LIMIT=2000000 SND_NIC=0 RCV_NIC=0 PKTGEN_REPLAY_COUNT=25 autokill=false
@@ -548,7 +643,192 @@ input[0] ->
     -> arpq0;
 }
 
+
+%vpp:script@dut sudo=true autokill=false
+
+
+sudo killall bessd
+sudo killall click
+sudo killall vpp_main
+
+// Set processor frequency
+sudo cpupower frequency-set -d ${FREQ}M -u ${FREQ}M
+
+// Enabling MSR
+modprobe msr 
+
+// Set uncore frequency
+uncore_value=$(( ($UNCORE_FREQ << 8 ) +  $UNCORE_FREQ))
+echo "Setting Uncore Frequency to $(( $UNCORE_FREQ / 10))GHz"
+printf 'Setting UNCORE_RATIO_LIMIT to 0x%x\n' $uncore_value
+wrmsr 0x620 $uncore_value
+
+// Setting DDIO WAYS
+wrmsr 0xC8B $ddio_value
+
+cp startup_vpp.sh ${VPP_PATH}
+cp startup-p2p.conf ${VPP_PATH}
+cp vppctl_p2p.sh ${VPP_PATH}
+
+cd ${VPP_PATH}
+echo "starting VPP and sleep 15"
+echo "EVENT VPP_BEGIN"
+./startup_vpp.sh p2p
+
+
+
+%vpp:script@dut sudo=true autokill=false waitfor=VPP_BEGIN delay=15
+
+cd ${VPP_PATH}
+
+echo "Setup xconnect"
+./vppctl_p2p.sh 
+sleep 5
+//sudo ./build-root/install-vpp-native/vpp/bin/vppctl -s /tmp/cli.sock set int l2 xconnect "HundredGigabitEthernet17/0/0" "HundredGigabitEthernet17/0/0"
+//sudo ./build-root/install-vpp-native/vpp/bin/vppctl -s /tmp/cli.sock set int state "HundredGigabitEthernet17/0/0" up
+
+echo "EVENT COMPILED"
+sleep 1000
+
+
+%vpp:file@dut startup_vpp.sh
+
+#!/bin/bash
+
+export T=${VPP_PATH}/build-root/install-vpp-native/vpp
+config="p2p"
+
+sudo mkdir -p /tmp/vpp
+sudo rm /tmp/vpp/* 2>/dev/null
+
+if [[ "$#" -eq 0 ]];then
+	sudo $T/bin/vpp -c startup-p2p.conf
+else
+	config="${1}"
+	sudo $T/bin/vpp -c startup-"${config}".conf
+fi
+
+
+%vpp:file@dut startup-p2p.conf
+
+unix {
+  nodaemon
+  # interactive
+  cli-listen /tmp/cli.sock
+}
+
+api-segment {
+  prefix vpp985
+}
+
+cpu {
+    main-core 0
+}
+
+dpdk {
+    
+    dev default {
+        num-rx-queues 1
+        num-tx-queues 1
+        num-rx-desc 1024
+        num-tx-desc 1024
+    }
+
+    dev ${self:0:pci}
+
+    no-multi-seg
+
+    # num-mbufs 65536
+    
+    # socket-mem 4096,4096
+
+}
+
+%vpp:file@dut vppctl_p2p.sh
+
+export VPP_ROOT='${VPP_PATH}'
+export STARTUP_CONF='startup-p2p.conf'
+export NAMELC0P0="HundredGigabitEthernet17/0/0" # Should be set accordingly
+
+echo "Preparing path"
+
+BINS="$VPP_ROOT/build-root/install-vpp-native/vpp/bin"
+PLUGS="$VPP_ROOT/build-root/install-vpp-native/vpp/lib64/vpp_plugins"
+SFLAG="env PATH=$PATH:$BINS"
+
+PREFIX=`cat $STARTUP_CONF | grep cli-listen | awk '{print $2}' | xargs echo -n`
+
+cd $VPP_ROOT
+
+sudo $BINS/vppctl -s $PREFIX set int l2 xconnect $NAMELC0P0 $NAMELC0P0
+
+sudo $BINS/vppctl -s $PREFIX set int state $NAMELC0P0 up
+
+echo "Done Configuration"
+exit 1
+
+
+%bess:script@dut sudo=true autokill=false
+
+sudo killall bessd
+sudo killall click
+
+// Set processor frequency
+sudo cpupower frequency-set -d ${FREQ}M -u ${FREQ}M
+
+// Enabling MSR
+modprobe msr 
+
+// Set uncore frequency
+uncore_value=$(( ($UNCORE_FREQ << 8 ) +  $UNCORE_FREQ))
+echo "Setting Uncore Frequency to $(( $UNCORE_FREQ / 10))GHz"
+printf 'Setting UNCORE_RATIO_LIMIT to 0x%x\n' $uncore_value
+wrmsr 0x620 $uncore_value
+
+// Setting DDIO WAYS
+wrmsr 0xC8B $ddio_value
+
+cp p2p_phys.bess ${BESS_PATH}
+cp p2p.bess ${BESS_PATH}
+
+cd ${BESS_PATH}
+bessctl/bessctl daemon start
+export BESS_QSIZE=1024
+export BESS_PORTS=1
+bessctl/bessctl run port/$(("p2p" if $TOUCH else "p2p_phys"))
+
+echo "EVENT COMPILED"
+
+%bess:exit
+cd ${BESS_PATH}
+bessctl/bessctl daemon stop
+
+
+%bess:file@dut p2p_phys.bess
+
+bess.add_worker(wid=0, core=0)
+inport::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
+
+in0::QueueInc(port=inport, qid=0)
+out0::QueueOut(port=inport, qid=0)
+
+in0 -> out0
+
+%bess:file@dut p2p.bess
+
+bess.add_worker(wid=0, core=0)
+inport::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
+
+in0::QueueInc(port=inport, qid=0)
+out0::QueueOut(port=inport, qid=0)
+
+in0 -> MACSwap() -> out0
+
+
 %dpdk:script@dut sudo=true
+
+sudo killall bessd
+sudo killall click
 
 echo "EVENT COMPILED"
 
@@ -588,7 +868,10 @@ echo "Launching $BIN with VEC $VEC and COMP $DOCOMP"
 unbuffer $GDB ./build/$BIN -w ${self:0:pci},rx_vec_en=$VEC,rxq_cqe_comp_en=$DOCOMP,mprq_en=$MPRQ --file-prefix tatata -l 0-0  -- -p 1 -q 1 -T 1 2>&1 | sed 's/[^a-zA-Z0-9]//g'
 echo "Finished..."
 
-%-dpdk:script@dut sudo=true
+%-dpdk,-bess,-vpp:script@dut sudo=true
+
+sudo killall bessd
+sudo killall click
 
 echo "PERF is" $PERF
 

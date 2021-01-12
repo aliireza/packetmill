@@ -19,6 +19,8 @@ NPF_INT_FLAGS := --show-full --rand-env 65536 --build-folder ./npf_build/ --forc
 DUT_PMU_PATH=$(CURDIR)/../pmu-tools # PMU Tools
 XCHG_PATH=$(CURDIR)/../xchange # X-Change (DPDK)
 XCHG_EXAMPLES_PATH=$(CURDIR)/../xchange/examples/ # X-Change (DPDK) - Examples
+BESS_PATH=$(CURDIR)/../bess # BESS
+VPP_PATH=$(CURDIR)/../vpp.2005 # VPP
 DUT_BOLT_PATH=$(CURDIR)/../llvm-bolt/build/bin/ # BOLT Binary Optimizer
 DUT_AUTOFDO_PATH=$(CURDIR)/../autofdo/ # Autofdo Tool
 LLVM_PASS_PATH=$(CURDIR)/../LLVM # LLVM Passes
@@ -28,6 +30,8 @@ TOOLS_PATH :=
 TOOLS_PATH += DUT_PMU_PATH=${DUT_PMU_PATH}
 TOOLS_PATH += XCHG_PATH=${XCHG_PATH}
 TOOLS_PATH += XCHG_EXAMPLES_PATH=${XCHG_EXAMPLES_PATH}
+TOOLS_PATH += BESS_PATH=${BESS_PATH}
+TOOLS_PATH += VPP_PATH=${VPP_PATH}
 TOOLS_PATH += DUT_BOLT_PATH=${DUT_BOLT_PATH}
 TOOLS_PATH += DUT_AUTOFDO_PATH=${DUT_AUTOFDO_PATH}
 TOOLS_PATH += LLVM_PASS_PATH=${LLVM_PASS_PATH}
@@ -36,10 +40,12 @@ TOOLS_PATH += EXP_PATH=${EXP_PATH}
 # Repositories
 CPY_GCC_REPO=packetmill
 CPY_CLANG_REPO=packetmill-clang-cpy
+CPY_CLANG_REPO_STRIPPED=packetmill-clang-cpy-stripped
 CPY_CLANG_LTO_REPO=packetmill-clang-flto-cpy
 OVRLY_CLANG_LTO_REPO=packetmill-clang-flto-ovrly
 INSIDE_CLANG_LTO_REPO=packetmill-clang-flto-inside
 XCHG_CLANG_LTO_REPO=packetmill-clang-flto-xchg
+XCHG_CLANG_LTO_REPO_STRIPPED=packetmill-clang-flto-xchg-stripped
 CLANG_PGO_REPO=packetmill-clang-cpy-pgo
 CLANG_PGO_PROFILE_REPO=packetmill-clang-cpy-pgo-profile
 CLANG_BOLT_REPO=packetmill-clang-cpy-bolt
@@ -101,10 +107,41 @@ test_xchg_fwd: deps-xchg
 
 # Metadata Management Comparisson (X-Change vs. Overlaying vs. Copying) - with/without vectorized PMD - Forwarding - single core
 test_xchg_fwd_vec: deps-xchg
-	npf-compare ${CPY_CLANG_LTO_REPO}+vanilla,novec:Copying-NOVEC ${CPY_CLANG_LTO_REPO}+vanilla:Copying-VEC ${OVRLY_CLANG_LTO_REPO}+vanilla,novec:Overlaying-NOVEC ${OVRLY_CLANG_LTO_REPO}+vanilla:Overlaying-VEC ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,novec:X-Change-NOVEC  ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,xchgvec:X-Change-VEC --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp udpgen fwd --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128]
+	npf-compare ${CPY_CLANG_LTO_REPO}+vanilla,novec:Copying-NOVEC ${CPY_CLANG_LTO_REPO}+vanilla:Copying-VEC ${OVRLY_CLANG_LTO_REPO}+vanilla,novec:Overlaying-NOVEC ${OVRLY_CLANG_LTO_REPO}+vanilla:Overlaying-VEC ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,novec:X-Change-NOVEC  ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,xchgvec:X-Change-VEC --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp udpgen fwd --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} graph_color={6,6,1,1,5,2,4} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128]
 	rm -fr test_xchg_fwd_vec/
 	mkdir -p test_xchg_fwd_vec
 	mv packetmill-results* test_xchg_fwd_vec/
+
+# Metadata Management Comparisson - FastClick vs. L2FWD (with/without X-Change) 
+test_xchg_app: deps-xchg
+	npf-compare "local+dpdk,TARGET=fwd:L2fwd" "local+dpdk,TARGET=xchg:L2fwd-xchg" ${CPY_CLANG_REPO}+fwd:FastClick ${CPY_CLANG_REPO_STRIPPED}+fwd:FastClick-Light ${XCHG_CLANG_LTO_REPO}+fwd,xchg:PacketMill ${XCHG_CLANG_LTO_REPO_STRIPPED}+fwd,xchg:PacketMill-Light local+bess:BESS local+vpp:VPP --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc dpdkfixed --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} graph_color={6,6,1,1,5,2,4} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables TOUCH=1 "GEN_LENGTH=[64-1500#128]" --force-retest 
+	rm -fr test_xchg_app/
+	mkdir -p test_xchg_app
+	mv packetmill-results* test_xchg_app/
+
+test_xchg_app_2: deps-xchg
+	npf-compare ${CPY_CLANG_REPO}+fwd:FastClick ${CPY_CLANG_REPO_STRIPPED}+fwd:FastClick-Light ${XCHG_CLANG_LTO_REPO}+fwd,xchg:PacketMill ${XCHG_CLANG_LTO_REPO_STRIPPED}+fwd,xchg:PacketMill-Light local+bess:BESS local+vpp:VPP --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc dpdkfixed --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} graph_color={1,1,6,6,4,5} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables TOUCH=1 "GEN_LENGTH=[64-1500#128]" --force-retest 
+	rm -fr test_xchg_app_2/
+	mkdir -p test_xchg_app_2
+	mv packetmill-results* test_xchg_app_2/
+
+test_stripped: deps-xchg
+	npf-compare ${CPY_CLANG_REPO_STRIPPED}+fwd:FastClick-Light ${XCHG_CLANG_LTO_REPO_STRIPPED}+fwd,xchg:PacketMill-Light --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc dpdkfixed --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables TOUCH=1 "GEN_LENGTH=[64-1500#128]" --force-retest 
+	rm -fr test_stripped/
+	mkdir -p test_stripped
+	mv packetmill-results* test_stripped/
+
+test_bess: deps-xchg
+	npf-compare local+bess:BESS --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables "GEN_LENGTH=[64-1500#128]" --force-retest
+	rm -fr test_bess/
+	mkdir -p test_bess
+	mv packetmill-results* test_bess/
+
+test_vpp: deps-xchg
+	npf-compare local+vpp:VPP --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables "GEN_LENGTH=[64-1500#128]" --force-retest
+	rm -fr test_vpp/
+	mkdir -p test_vpp
+	mv packetmill-results* test_vpp/
 
 # Metadata Management Comparisson (X-Change vs. Copying) - with/without vectorized PMD - Forwarding DPDK - single core
 test_xchg_l2fwd_dpdk: deps-xchg
