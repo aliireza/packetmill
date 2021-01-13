@@ -150,7 +150,7 @@ test_bess: deps-xchg
 	mv packetmill-results* test_bess/
 
 test_vpp: deps-xchg
-	npf-compare ${VPP_REPO}+vpp:VPP ${VPP_REPO}+vpp,novec:VPP --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables "GEN_LENGTH=[64-1500#128]"
+	npf-compare ${VPP_REPO}+vpp:VPP ${VPP_REPO}+vpp,novec:VPP-NOVEC --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables "GEN_LENGTH=[64-1500#128]"
 	rm -fr test_vpp/
 	mkdir -p test_vpp
 	mv packetmill-results* test_vpp/
