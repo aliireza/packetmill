@@ -131,6 +131,12 @@ test_xchg_app_2: deps-xchg
 	mkdir -p test_xchg_app_2
 	mv packetmill-results* test_xchg_app_2/
 
+test_xchg_app_2_vec: deps-xchg
+	npf-compare ${CPY_CLANG_REPO}+fwd:FastClick ${CPY_CLANG_REPO_STRIPPED}+fwd:FastClick-Light ${XCHG_CLANG_LTO_REPO}+fwd,xchg:PacketMill ${XCHG_CLANG_LTO_REPO_STRIPPED}+fwd,xchg:PacketMill-Light local+bess:BESS local+vpp:VPP --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc dpdkfixed --config graph_color={1,1,6,6,4,5} n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} VEC=1 FREQ=1200 --variables TOUCH=1 "GEN_LENGTH=[64-1500#128]"
+	rm -fr test_xchg_app_2_vec/
+	mkdir -p test_xchg_app_2_vec
+	mv packetmill-results* test_xchg_app_2_vec/
+
 test_stripped: deps-xchg
 	npf-compare ${CPY_CLANG_REPO_STRIPPED}+fwd:FastClick-Light ${XCHG_CLANG_LTO_REPO_STRIPPED}+fwd,xchg:PacketMill-Light --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc dpdkfixed --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables TOUCH=1 "GEN_LENGTH=[64-1500#128]"
 	rm -fr test_stripped/
