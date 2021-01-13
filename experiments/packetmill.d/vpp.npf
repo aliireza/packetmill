@@ -1,4 +1,4 @@
-%vpp:script@dut sudo=true autokill=false
+%vpp:script@dut sudo=true autokill=false title=daemon
 
 
 sudo killall bessd
@@ -25,20 +25,23 @@ cp startup_vpp.sh ${VPP_PATH}
 cp startup-p2p.conf ${VPP_PATH}
 cp vppctl_p2p.sh ${VPP_PATH}
 
-cd ${VPP_PATH}
+export LD_LIBRARY_PATH=/opt/vpp/external/x86_64/lib/
+sudo ldconfig $LD_LIBRARY_PATH
+
 echo "starting VPP and sleep 15"
 echo "EVENT VPP_BEGIN"
-./startup_vpp.sh p2p
+bash ./startup_vpp.sh p2p
 
 
 
-%vpp:script@dut sudo=true autokill=false waitfor=VPP_BEGIN delay=15
+%vpp:script@dut sudo=true autokill=false waitfor=VPP_BEGIN delay=15 title=VPP
 
 VPP_PATH=${NPF_BUILD}/
+echo "Chdir to $VPP_PATH"
 cd ${VPP_PATH}
 
 echo "Setup xconnect"
-./vppctl_p2p.sh 
+bash ./vppctl_p2p.sh
 sleep 5
 //sudo ./build-root/install-vpp-native/vpp/bin/vppctl -s /tmp/cli.sock set int l2 xconnect "HundredGigabitEthernet17/0/0" "HundredGigabitEthernet17/0/0"
 //sudo ./build-root/install-vpp-native/vpp/bin/vppctl -s /tmp/cli.sock set int state "HundredGigabitEthernet17/0/0" up
@@ -90,7 +93,9 @@ dpdk {
         num-tx-desc 1024
     }
 
-    dev ${self:0:pci}
+    dev ${self:0:pci} {
+$(("        devargs $MLX_OPT" if "$MLX_OPT" else ""))
+    }
 
     no-multi-seg
 
@@ -102,7 +107,7 @@ dpdk {
 
 %vpp:file@dut vppctl_p2p.sh
 
-export VPP_ROOT='${NPF_BUILD}'
+export VPP_ROOT=./
 export STARTUP_CONF='startup-p2p.conf'
 export NAMELC0P0="HundredGigabitEthernet17/0/0" # Should be set accordingly
 
@@ -124,3 +129,5 @@ echo "Done Configuration"
 exit 1
 
 
+%script@dut sudo=true waitfor=GEN_DONE
+killall -9 vpp_main

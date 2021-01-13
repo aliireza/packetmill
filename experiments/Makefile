@@ -1,5 +1,5 @@
 # Change the number of runs per experiment
-N_RUNS=5
+N_RUNS?=5
 
 # Default Configuration
 CASE?=router
@@ -9,13 +9,12 @@ PROFILE?=perf
 MAKEFLAGS := -j 1
 
 # NPF Clusters (dut.node and pkt-gen.node should be defined in cluster/)
-ifeq ("${NPF_CLUSTER}","")
-NPF_CLUSTER=client=client-100G dut=dut-100G client2=client2-100G
-endif
+NPF_CLUSTER?=client=client-100G dut=dut-100G client2=client2-100G
 
 NPF_OUTPUT_NAME?=packetmill-results.pdf
 NPF_OUTPUT= --output --output-columns x all --max-results --graph-filename ${NPF_OUTPUT_NAME}
-NPF_INT_FLAGS := --show-full --rand-env 65536 --build-folder ./npf_build/ --force-retest ${NPF_OUTPUT} $(NPF_FLAGS)
+NPF_INT_FLAGS := --show-full --rand-env 65536 --build-folder ./npf_build/ ${NPF_OUTPUT} $(NPF_FLAGS)
+NPF_INT_FLAGS := $(NPF_INT_FLAGS) --force-retest
 
 # Tools path 
 DUT_PMU_PATH=$(CURDIR)/../pmu-tools # PMU Tools

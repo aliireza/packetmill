@@ -4,6 +4,6 @@ branch=v20.05
 bin_folder=build-root/install-vpp-native/vpp/bin
 bin_name=vpp
 configure=
-make=make dpdk-install-dev DPDK_MLX5_PMD=y DPDK_MLX5_PMD_DLOPEN_DEPS=y && sudo cp /opt/vpp/external/x86_64/lib/librte_pmd_mlx5_glue.so* /usr/lib/ && make build-release vpp_uses_dpdk_mlx5_pmd=yes DPDK_MLX5_PMD_DLOPEN_DEPS=y
-clean=make wipe-release && make wipe 
+make=sudo make install-dep UNATTENDED=y DEBIAN_FRONTEND=noninteractive && make dpdk-install-dev DPDK_MLX5_PMD=y DPDK_MLX5_PMD_DLOPEN_DEPS=y && make build-release vpp_uses_dpdk_mlx5_pmd=yes DPDK_MLX5_PMD_DLOPEN_DEPS=y
+clean=(make wipe-release && make wipe ) || exit 0
 tags=vpp
