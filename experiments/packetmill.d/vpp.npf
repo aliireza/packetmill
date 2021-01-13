@@ -94,7 +94,7 @@ dpdk {
     }
 
     dev ${self:0:pci} {
-$(("        devargs $MLX_OPT" if "$MLX_OPT" else ""))
+$(("        devargs ${MLX_OPT}" if "${MLX_OPT}" else ""))
     }
 
     no-multi-seg

@@ -273,9 +273,11 @@ wp:WP=EXPAND( -> WorkPackage(S $WP_S, N $WP_N, R 0, PAYLOAD false, W $WP_W) )
 
 PERF_EVENTS=branches,branch-misses,cache-references,cache-misses,cycles,instructions,L1-dcache-load-misses,L1-dcache-loads,L1-dcache-stores,L1-icache-load-misses,LLC-load-misses,LLC-loads,LLC-stores,LLC-store-misses  //Add new events here
 
+
 novec:MLX_OPT?=,rx_vec_en=0,rxq_cqe_comp_en=0,mprq_en=0
 xchgvec:MLX_OPT?=,rxq_cqe_comp_en=0
 noinline:MLX_OPT+=,rxq_cqe_comp_en=0,mprq_en=0,txq_inline_max=0
+MLX_OPT?=
 GDB?=
 PERF?=
 
