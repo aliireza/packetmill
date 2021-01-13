@@ -107,7 +107,7 @@ test_xchg_fwd: deps-xchg
 
 # Metadata Management Comparisson (X-Change vs. Overlaying vs. Copying) - with/without vectorized PMD - Forwarding - single core
 test_xchg_fwd_vec: deps-xchg
-	npf-compare ${CPY_CLANG_LTO_REPO}+vanilla,novec:Copying-NOVEC ${CPY_CLANG_LTO_REPO}+vanilla:Copying-VEC ${OVRLY_CLANG_LTO_REPO}+vanilla,novec:Overlaying-NOVEC ${OVRLY_CLANG_LTO_REPO}+vanilla:Overlaying-VEC ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,novec:X-Change-NOVEC  ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,xchgvec:X-Change-VEC --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp udpgen fwd --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} graph_color={6,6,1,1,5,2,4} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128]
+	npf-compare ${CPY_CLANG_LTO_REPO}+vanilla,novec:Copying-NOVEC ${CPY_CLANG_LTO_REPO}+vanilla:Copying-VEC ${OVRLY_CLANG_LTO_REPO}+vanilla,novec:Overlaying-NOVEC ${OVRLY_CLANG_LTO_REPO}+vanilla:Overlaying-VEC ${XCHG_CLANG_LTO_REPO}+vanilla,xchg,novec:X-Change-NOVEC  ${XCHG_CLANG_LTO_REPO}+vanilla,xchg:X-Change-VEC --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp udpgen fwd --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} graph_color={6,6,1,1,5,2,4} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128]
 	rm -fr test_xchg_fwd_vec/
 	mkdir -p test_xchg_fwd_vec
 	mv packetmill-results* test_xchg_fwd_vec/

@@ -216,10 +216,9 @@ deviropt:JMPS=0
 
 // DPDK example (l2fwd-xchg)
 
-dpdk,-dpdkfixed:VEC?={0,1}
+//dpdk,-dpdkfixed:VEC?={0,1}
 dpdk:COMP=0
 dpdk:MPRQ=0 //This is not relevant
-dpdk,-dpdkfixed:TARGET?={fwd,xchg}
 
 // Pass the gdb tags to run packetmill/click under gdb and see where things go bad
 gdb:GDB=gdb -ex run -ex "signal 2" -ex bt -batch -args
@@ -264,6 +263,9 @@ LLVM_PASS_PATH=
 //Record the latency of 1 packet every 100
 SAMPLE=100
 
+%dpdk:require
+test -n "$TARGET"
+
 %late_variables
 
 scaling:CPU=EXPAND($DPDK_CPU)
@@ -273,9 +275,10 @@ wp:WP=EXPAND( -> WorkPackage(S $WP_S, N $WP_N, R 0, PAYLOAD false, W $WP_W) )
 
 PERF_EVENTS=branches,branch-misses,cache-references,cache-misses,cycles,instructions,L1-dcache-load-misses,L1-dcache-loads,L1-dcache-stores,L1-icache-load-misses,LLC-load-misses,LLC-loads,LLC-stores,LLC-store-misses  //Add new events here
 
-
+VEC=1
 novec:MLX_OPT?=,rx_vec_en=0,rxq_cqe_comp_en=0,mprq_en=0
-xchgvec:MLX_OPT?=,rxq_cqe_comp_en=0
+novec:VEC=0
+xchg,-novec:MLX_OPT?=,rxq_cqe_comp_en=0
 noinline:MLX_OPT+=,rxq_cqe_comp_en=0,mprq_en=0,txq_inline_max=0
 MLX_OPT?=
 GDB?=
