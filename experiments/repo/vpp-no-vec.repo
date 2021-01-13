@@ -1,0 +1,9 @@
+name=VPP
+url=https://github.com/aliireza/vpp.git
+branch=v20.05-no-vec
+bin_folder=build-root/install-vpp-native/vpp/bin
+bin_name=vpp
+configure=
+make=make dpdk-install-dev DPDK_MLX5_PMD=y DPDK_MLX5_PMD_DLOPEN_DEPS=y && cp /opt/vpp/external/x86_64/lib/librte_pmd_mlx5_glue.so* /usr/lib/ && make build-release vpp_uses_dpdk_mlx5_pmd=yes DPDK_MLX5_PMD_DLOPEN_DEPS=y
+clean=make wipe-release && make wipe
+tags=vpp
