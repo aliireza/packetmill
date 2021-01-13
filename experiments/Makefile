@@ -195,10 +195,16 @@ test_llvm_pass_router: deps
 
 # Compare PacketMill & Vanilla with WorkPackage 
 test_packetmill_wp: deps-xchg
-	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_REPO}+embedding,xchg:PacketMill  --testie test.testie --cluster ${NPF_CLUSTER} --tags ${CASE} novec wp --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} FREQ=2300
-	rm -fr packetmill_wp/
-	mkdir -p packetmill_wp
-	mv packetmill-results* packetmill_wp/
+	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_REPO}+embedding,xchg:PacketMill  --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} novec wp --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} FREQ=2300 WP_S=[0-20] WP_W={0,4,8,12,16,20} WP_N=[1-5]
+	rm -fr test_packetmill_wp/
+	mkdir -p test_packetmill_wp
+	mv packetmill-results* test_packetmill_wp/
+
+test_packetmill_wp_threshold: deps-xchg
+	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla  --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} novec wp pqos --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} FREQ=2300 WP_S=[0-20] WP_W=4 WP_N=1
+	rm -fr test_packetmill_wp_threshold/
+	mkdir -p test_packetmill_wp_threshold
+	mv packetmill-results* test_packetmill_wp_threshold/
 
 # Source-code Modifications Router via Copying (Vanilla Click) - Router - single core
 test_sourcecode_router: deps
