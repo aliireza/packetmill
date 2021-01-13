@@ -21,8 +21,6 @@ NPF_INT_FLAGS := --show-full --rand-env 65536 --build-folder ./npf_build/ --forc
 DUT_PMU_PATH=$(CURDIR)/../pmu-tools # PMU Tools
 XCHG_PATH=$(CURDIR)/../xchange # X-Change (DPDK)
 XCHG_EXAMPLES_PATH=$(CURDIR)/../xchange/examples/ # X-Change (DPDK) - Examples
-#BESS_PATH=$(CURDIR)/../bess # BESS
-#VPP_PATH=$(CURDIR)/../vpp.2005 # VPP
 DUT_BOLT_PATH=$(CURDIR)/../llvm-bolt/build/bin/ # BOLT Binary Optimizer
 DUT_AUTOFDO_PATH=$(CURDIR)/../autofdo/ # Autofdo Tool
 LLVM_PASS_PATH=$(CURDIR)/../LLVM # LLVM Passes
@@ -32,8 +30,6 @@ TOOLS_PATH :=
 TOOLS_PATH += DUT_PMU_PATH=${DUT_PMU_PATH}
 TOOLS_PATH += XCHG_PATH=${XCHG_PATH}
 TOOLS_PATH += XCHG_EXAMPLES_PATH=${XCHG_EXAMPLES_PATH}
-TOOLS_PATH += BESS_PATH=
-TOOLS_PATH += VPP_PATH=
 TOOLS_PATH += DUT_BOLT_PATH=${DUT_BOLT_PATH}
 TOOLS_PATH += DUT_AUTOFDO_PATH=${DUT_AUTOFDO_PATH}
 TOOLS_PATH += LLVM_PASS_PATH=${LLVM_PASS_PATH}

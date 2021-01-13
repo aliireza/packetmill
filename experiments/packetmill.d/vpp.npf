@@ -1,0 +1,126 @@
+%vpp:script@dut sudo=true autokill=false
+
+
+sudo killall bessd
+sudo killall click
+sudo killall vpp_main
+
+// Set processor frequency
+sudo cpupower frequency-set -d ${FREQ}M -u ${FREQ}M
+
+// Enabling MSR
+modprobe msr 
+
+// Set uncore frequency
+uncore_value=$(( ($UNCORE_FREQ << 8 ) +  $UNCORE_FREQ))
+echo "Setting Uncore Frequency to $(( $UNCORE_FREQ / 10))GHz"
+printf 'Setting UNCORE_RATIO_LIMIT to 0x%x\n' $uncore_value
+wrmsr 0x620 $uncore_value
+
+// Setting DDIO WAYS
+wrmsr 0xC8B $ddio_value
+
+VPP_PATH=${NPF_BUILD}/
+cp startup_vpp.sh ${VPP_PATH}
+cp startup-p2p.conf ${VPP_PATH}
+cp vppctl_p2p.sh ${VPP_PATH}
+
+cd ${VPP_PATH}
+echo "starting VPP and sleep 15"
+echo "EVENT VPP_BEGIN"
+./startup_vpp.sh p2p
+
+
+
+%vpp:script@dut sudo=true autokill=false waitfor=VPP_BEGIN delay=15
+
+VPP_PATH=${NPF_BUILD}/
+cd ${VPP_PATH}
+
+echo "Setup xconnect"
+./vppctl_p2p.sh 
+sleep 5
+//sudo ./build-root/install-vpp-native/vpp/bin/vppctl -s /tmp/cli.sock set int l2 xconnect "HundredGigabitEthernet17/0/0" "HundredGigabitEthernet17/0/0"
+//sudo ./build-root/install-vpp-native/vpp/bin/vppctl -s /tmp/cli.sock set int state "HundredGigabitEthernet17/0/0" up
+
+echo "EVENT COMPILED"
+sleep 1000
+
+
+%vpp:file@dut startup_vpp.sh
+
+#!/bin/bash
+
+export T=${NPF_BUILD}/build-root/install-vpp-native/vpp
+config="p2p"
+
+sudo mkdir -p /tmp/vpp
+sudo rm /tmp/vpp/* 2>/dev/null
+
+if [[ "$#" -eq 0 ]];then
+	sudo $T/bin/vpp -c startup-p2p.conf
+else
+	config="${1}"
+	sudo $T/bin/vpp -c startup-"${config}".conf
+fi
+
+
+%vpp:file@dut startup-p2p.conf
+
+unix {
+  nodaemon
+  # interactive
+  cli-listen /tmp/cli.sock
+}
+
+api-segment {
+  prefix vpp985
+}
+
+cpu {
+    main-core 0
+}
+
+dpdk {
+    
+    dev default {
+        num-rx-queues 1
+        num-tx-queues 1
+        num-rx-desc 1024
+        num-tx-desc 1024
+    }
+
+    dev ${self:0:pci}
+
+    no-multi-seg
+
+    # num-mbufs 65536
+    
+    # socket-mem 4096,4096
+
+}
+
+%vpp:file@dut vppctl_p2p.sh
+
+export VPP_ROOT='${NPF_BUILD}'
+export STARTUP_CONF='startup-p2p.conf'
+export NAMELC0P0="HundredGigabitEthernet17/0/0" # Should be set accordingly
+
+echo "Preparing path"
+
+BINS="$VPP_ROOT/build-root/install-vpp-native/vpp/bin"
+PLUGS="$VPP_ROOT/build-root/install-vpp-native/vpp/lib64/vpp_plugins"
+SFLAG="env PATH=$PATH:$BINS"
+
+PREFIX=`cat $STARTUP_CONF | grep cli-listen | awk '{print $2}' | xargs echo -n`
+
+cd $VPP_ROOT
+
+sudo $BINS/vppctl -s $PREFIX set int l2 xconnect $NAMELC0P0 $NAMELC0P0
+
+sudo $BINS/vppctl -s $PREFIX set int state $NAMELC0P0 up
+
+echo "Done Configuration"
+exit 1
+
+

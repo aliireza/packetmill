@@ -1,0 +1,62 @@
+%bess:script@dut sudo=true autokill=false
+
+sudo killall bessd
+sudo killall click
+
+// Set processor frequency
+sudo cpupower frequency-set -d ${FREQ}M -u ${FREQ}M
+
+// Enabling MSR
+modprobe msr 
+
+// Set uncore frequency
+uncore_value=$(( ($UNCORE_FREQ << 8 ) +  $UNCORE_FREQ))
+echo "Setting Uncore Frequency to $(( $UNCORE_FREQ / 10))GHz"
+printf 'Setting UNCORE_RATIO_LIMIT to 0x%x\n' $uncore_value
+wrmsr 0x620 $uncore_value
+
+// Setting DDIO WAYS
+wrmsr 0xC8B $ddio_value
+
+BESS_PATH=${NPF_BUILD}
+
+echo ${BESS_PATH}/bessctl/conf/port/
+cp p2p_phys.bess ${BESS_PATH}/bessctl/conf/port/
+cp p2p.bess ${BESS_PATH}/bessctl/conf/port/
+
+cd ${BESS_PATH}
+bessctl/bessctl daemon start
+export BESS_QSIZE=1024
+export BESS_PORTS=1
+bessctl/bessctl run port/$(("p2p" if $TOUCH else "p2p_phys"))
+
+echo "EVENT COMPILED"
+
+%bess:exit
+BESS_PATH=${NPF_BUILD}/
+cd ${BESS_PATH}
+bessctl/bessctl daemon stop
+
+
+%bess:file@dut p2p_phys.bess
+
+bess.add_worker(wid=0, core=0)
+inport::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
+
+in0::QueueInc(port=inport, qid=0)
+out0::QueueOut(port=inport, qid=0)
+
+in0 -> out0
+
+%bess:file@dut p2p.bess
+
+bess.add_worker(wid=0, core=0)
+inport::PMDPort(port_id=0, num_inc_q=1, num_out_q=1)
+
+in0::QueueInc(port=inport, qid=0)
+out0::QueueOut(port=inport, qid=0)
+
+in0 -> MACSwap() -> out0
+
+
+

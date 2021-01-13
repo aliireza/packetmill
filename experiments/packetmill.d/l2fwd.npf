@@ -1,0 +1,44 @@
+%dpdk:script@dut sudo=true
+
+sudo killall bessd
+sudo killall click
+
+echo "EVENT COMPILED"
+
+// Set processor frequency
+sudo cpupower --cpu 0-\$(( $(nproc) - 1)) frequency-set -d ${FREQ}M -u ${FREQ}M
+
+// Enabling MSR
+modprobe msr 
+
+// Set uncore frequency
+uncore_value=$(( ($UNCORE_FREQ << 8 ) +  $UNCORE_FREQ))
+echo "Setting Uncore Frequency to $(( $UNCORE_FREQ / 10))GHz"
+printf 'Setting UNCORE_RATIO_LIMIT to 0x%x\n' $uncore_value
+wrmsr 0x620 $uncore_value
+
+// Setting DDIO WAYS
+wrmsr 0xC8B $ddio_value
+
+cd ${XCHG_EXAMPLES_PATH}
+
+if [ "$TARGET" = "xchg" ] ; then
+    BIN=l2fwd-xchg
+    FOLD=$BIN
+    DOCOMP=0
+elif [ "$TARGET" = "inline" ] ; then
+    BIN=l2fwd-xchg-inline
+    FOLD=l2fwd-xchg
+    DOCOMP=0
+else
+    BIN=l2fwd
+    FOLD=$BIN
+    DOCOMP=$COMP
+fi
+
+cd $FOLD
+echo "Launching $BIN with VEC $VEC and COMP $DOCOMP"
+unbuffer $GDB ./build/$BIN -w ${self:0:pci},rx_vec_en=$VEC,rxq_cqe_comp_en=$DOCOMP,mprq_en=$MPRQ --file-prefix tatata -l 0-0  -- -p 1 -q 1 -T 1 2>&1 | sed 's/[^a-zA-Z0-9]//g'
+echo "Finished..."
+
+
