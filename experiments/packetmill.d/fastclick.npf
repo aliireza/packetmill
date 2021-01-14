@@ -194,7 +194,6 @@ input[0] ->
 %-dpdk,-bess,-vpp:script@dut sudo=true
 
 sudo killall bessd
-sudo killall click
 
 echo "PERF is" $PERF
 
@@ -335,20 +334,6 @@ if [ $OPT -eq 1 ] ; then
 fi
 
 echo "EVENT COMPILED"
-// Set processor frequency
-sudo cpupower --cpu 0-\$(( $(nproc) - 1)) frequency-set -d ${FREQ}M -u ${FREQ}M
-
-// Enabling MSR
-modprobe msr 
-
-// Set uncore frequency
-uncore_value=$(( ($UNCORE_FREQ << 8 ) +  $UNCORE_FREQ))
-echo "Setting Uncore Frequency to $(( $UNCORE_FREQ / 10))GHz"
-printf 'Setting UNCORE_RATIO_LIMIT to 0x%x\n' $uncore_value
-wrmsr 0x620 $uncore_value
-
-// Setting DDIO WAYS
-wrmsr 0xC8B $ddio_value
 
 // Setting RTE_SDK
 export RTE_SDK=$XCHG_PATH

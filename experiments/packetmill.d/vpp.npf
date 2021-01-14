@@ -1,24 +1,6 @@
 %vpp:script@dut sudo=true autokill=false title=daemon
-
-
 sudo killall bessd
-sudo killall click
 sudo killall vpp_main
-
-// Set processor frequency
-sudo cpupower frequency-set -d ${FREQ}M -u ${FREQ}M
-
-// Enabling MSR
-modprobe msr 
-
-// Set uncore frequency
-uncore_value=$(( ($UNCORE_FREQ << 8 ) +  $UNCORE_FREQ))
-echo "Setting Uncore Frequency to $(( $UNCORE_FREQ / 10))GHz"
-printf 'Setting UNCORE_RATIO_LIMIT to 0x%x\n' $uncore_value
-wrmsr 0x620 $uncore_value
-
-// Setting DDIO WAYS
-wrmsr 0xC8B $ddio_value
 
 VPP_PATH=${NPF_BUILD}/
 cp startup_vpp.sh ${VPP_PATH}

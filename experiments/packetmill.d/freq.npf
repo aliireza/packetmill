@@ -1,0 +1,17 @@
+%script@dut sudo=true autokill=false waitfor=COMPILED
+
+// Set processor frequency
+echo "Setting cpu frequency of 0-\$(( $(nproc) - 1))"
+sudo cpupower --cpu 0-\$(( $(nproc) - 1)) frequency-set -d ${FREQ}M -u ${FREQ}M
+
+// Enabling MSR
+modprobe msr
+
+// Set uncore frequency
+uncore_value=$(( ($UNCORE_FREQ << 8 ) +  $UNCORE_FREQ))
+echo "Setting Uncore Frequency to $(( $UNCORE_FREQ / 10))GHz"
+printf 'Setting UNCORE_RATIO_LIMIT to 0x%x\n' $uncore_value
+wrmsr 0x620 $uncore_value
+
+// Setting DDIO WAYS
+wrmsr 0xC8B $ddio_value

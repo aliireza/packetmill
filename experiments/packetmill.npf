@@ -462,6 +462,7 @@ done
 %include packetmill.d/bess.npf
 %include packetmill.d/vpp.npf
 %include packetmill.d/fastclick.npf
+%include packetmill.d/freq.npf
 
 %require
 test $MINDRIVER -eq 1 || test $EMBED -eq 0
