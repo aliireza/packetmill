@@ -383,7 +383,7 @@ fd0 :: $FD(0, MAXTHREADS $CPU , BURST $BURST , TIMESTAMP false, PAUSE $PAUSE, CL
 
 DriverManager(  wait,
   //              print "RESULT-CYCLEPP $(accum.cycles_pp)",
-                //read fd0.xstats,
+                read fd0.xstats,
                 )
 
 %dual:file@dut MCONFIG
@@ -415,6 +415,6 @@ ids2 :: IDS()
 
 DriverManager(  wait,
   //              print "RESULT-CYCLEPP $(accum.cycles_pp)",
-                //read fd0.xstats,
+                read fd0.xstats,
                 )
 

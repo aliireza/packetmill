@@ -11,3 +11,5 @@ experiments/test_*
 experiments/results/*
 experiments/perf-normialized.csv
 experiments/cluster/*
+.vimhistory
+archives

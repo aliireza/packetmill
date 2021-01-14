@@ -1,0 +1,3 @@
+parent=packetmill-clang-cpy
+name=PacketMill (clang) - Overlay - Forwarding compile options
+configure+= --enable-dpdk-packet --enable-dpdk-pool --disable-clone --disable-task-stats --disable-cpu-load --disable-dpdk-softqueue

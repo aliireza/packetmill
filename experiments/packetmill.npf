@@ -49,10 +49,7 @@ ids:CHKSUM=0
 BOLT=0
 
 // BESS variables
-bess:TOUCH={0,1}
-
-// BESS variables
-bess:TOUCH={0,1}
+bess:TOUCH=1
 
 // BOLT variables
 boltpgo:BOLT=1
@@ -216,7 +213,6 @@ deviropt:JMPS=0
 
 // DPDK example (l2fwd-xchg)
 
-//dpdk,-dpdkfixed:VEC?={0,1}
 dpdk:COMP=0
 dpdk:MPRQ=0 //This is not relevant
 
