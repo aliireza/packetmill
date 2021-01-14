@@ -13,25 +13,25 @@ The details of the experiments are as follows:
 - `X-Change (Forwarder)`: This experiment compares the performance of different metadata management model: (i) copying, (ii) overlaying, and (iii) X-Change, where a single core is forwarding fixed-size packets. Note that this experiment uses LTO in all configurations. You can use `make test_xchg_fwd` to run this experiment. The output of the experiment should be similar to the following figure:
 
 <p align="center">
-<img src="test_xchg_fwd.png"  alt="X-Change (Forwarder)" width="50%">
+<img src="images/test_xchg_fwd.png"  alt="X-Change (Forwarder)" width="50%">
 </p>
 
 - `PacketMill (Router)`: This experiment applies PacketMill to a router that receives fixed-size packets. This experiment also uses a fixed-size traces. You can use `make test_packetmill_router` to run this experiment. The output of the experiment should be similar to the following figure:
 
 <p align="center">
-<img src="test_packetmill_router.png"  alt="PacketMill (Router)" width="50%">
+<img src="images/test_packetmill_router.png"  alt="PacketMill (Router)" width="50%">
 </p>
 
 - `Sophisticated Network Functions (Router+IDS+VLAN)`: This experiment demonstrates the benefits of PacketMill for a router+IDS configuration, where a single core is receiving fixed-size packets. You can use `make test_packetmill_ids` to run this experiment. The output of the experiment should be similar to the following figure:
 
 <p align="center">
-<img src="test_packetmill_ids.png"  alt="Sophisticated Network Functions (Router+IDS+VLAN)" width="50%">
+<img src="images/test_packetmill_ids.png"  alt="Sophisticated Network Functions (Router+IDS+VLAN)" width="50%">
 </p>
 
 - `Multicore NAT (Router+NAT)`: This experiment demonstrates the benefits of PacketMill for a router+NAT configuration, where different number of cores are receiving 1024-B packets. You can use `make test_packetmill_nat` to run this experiment. The output of the experiment should be similar to the following figure:
 
 <p align="center">
-<img src="test_packetmill_nat.png"  alt="Multicore NAT (Router+NAT)" width="50%">
+<img src="images/test_packetmill_nat.png"  alt="Multicore NAT (Router+NAT)" width="50%">
 </p>
 
 You can run the multicore NAT experiment via: `make test_packetmill_nat`. Note that you need to have a trace for this experiment. 
@@ -39,7 +39,7 @@ You can run the multicore NAT experiment via: `make test_packetmill_nat`. Note t
 - `Source-code Modifications (Router)`: This experiment shows the benefits of using our proposed source-code optimizations when a router is receiving **64-B**, **512-B**, and **1024-B** packets. This experiment uses copying metadata management model. You can use `make test_sourcecode_router` to run this experiment. The output of the experiment should be similar to the following figure:
 
 <p align="center">
-<img src="test_sourcecode_router.png"  alt="Source-code Modifications (Router)" width="50%">
+<img src="images/test_sourcecode_router.png"  alt="Source-code Modifications (Router)" width="50%">
 </p>
 
 **Note that this figure is showing a slightly different improvements than the results reported in our paper, as we use (i) fixed-size packets rather than our real campus trace, (ii) improved version of baseline (i.e., main branch of FastClick is merged into PacketMill branch), and (iii) different system configurations (i.e., different software packages and firmwares).**
@@ -88,7 +88,7 @@ Fore more information, please check their [repo][bolt-repo] and [paper][bolt-pap
 The output of `test_compare_bolt` should be something similar to the following figure:
 
 <p align="center">
-<img src="test_compare_bolt.png"  alt="Vanilla vs. Vanilla+BOLT FastClick (Router)" width="50%">
+<img src="images/test_compare_bolt.png"  alt="Vanilla vs. Vanilla+BOLT FastClick (Router)" width="50%">
 </p>
 
 - **PGO:** You can use `make test_pgo` to apply PGO to FastClick. TO use PGO, you need clone and compile `AutoFDO` tool to convert perf output.
