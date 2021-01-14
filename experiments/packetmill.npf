@@ -16,6 +16,8 @@ var_names+={GEN_LENGTH:Packet Length (Bytes)}
 var_names+={DPDK_CPU:Number of Cores}
 var_lim+={result-THROUGHPUT:0-}
 
+graph_series_sort=-avg
+
 results_expect={THROUGHPUT}
 
 %variables
