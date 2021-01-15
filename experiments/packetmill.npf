@@ -212,6 +212,9 @@ deviropt:UNROLL_FACTOR=0
 deviropt:SWITCH=0
 deviropt:JMPS=0
 
+//Vectorized or not
+-novec:VEC=1
+
 
 // DPDK example (l2fwd-xchg)
 
