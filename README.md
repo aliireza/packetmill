@@ -78,7 +78,7 @@ cd xchange
 make install T=x86_64-native-linux-clanglto
 ```
 
-After building X-Change, you have to define `XCHG_SDK` and `XCHG_TARGET`. To do so, run:
+After building X-Change, you have to define `XCHG_SDK` and `XCHG_TARGET`. To do so, run something similar to:
 
 ```bash
 export XCHG_SDK=/home/alireza/packetmill/xchange/
@@ -95,12 +95,14 @@ make install T=x86_64-native-linux-gcc
 make install T=x86_64-native-linux-clang
 ```
 
-After building DPDK, you have to define `RTE_SDK` and `RTE_TARGET`. To do so, run:
+After building DPDK, you have to define `RTE_SDK` and `RTE_TARGET`. To do so, run run something similar to:
 
 ```bash
 export RTE_SDK=/home/alireza/packetmill/dpdk/
 export RTE_TARGET=x86_64-native-linux-gcc
 ```
+
+**Make sure to set `RTE_SDK` and `XCHG_SDK` based on the location of `dpdk` and `xchange` directories.**
 
 
 **Note that `NPF` requires all three builds to perform the experiments. It uses `gcc` build (of DPDK v20.02) for packet generation (i.e., default case) and the other two (i.e., X-Change with `clanglto` and DPDK v20.02 with `clang`) for other scenarios at the server side.**

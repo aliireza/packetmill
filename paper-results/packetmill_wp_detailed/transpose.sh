@@ -2,7 +2,7 @@
 
 csvpath="./csv/"
 exp=("Vanilla" "PacketMill")
-metric=("THROUGHPUT" "LAT99" "LLC-load-misses-avg-C0")
+metric=("THROUGHPUT" "LAT99" "LLC-load-misses-avg-C0" "LLC-loads-avg-C0" "L1-dcache-load-misses-avg-C0" "L1-dcache-loads-avg-C0" "cache-misses-avg-C0" "cache-references-avg-C0")
 header=1
 n_header=4
 

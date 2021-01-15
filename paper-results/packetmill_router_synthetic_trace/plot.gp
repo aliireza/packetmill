@@ -68,9 +68,10 @@ plot "Vanilla-throughput-stats.dat" using ($1):($2/1000000000) with points ls 3 
 
 
 
-set ylabel "Processed Packets per Second (Million)" font "Helvetica,16"
+# set ylabel "Processed Packets per Second (Million)" font "Helvetica,16"
+set ylabel "PPS (Million)" font "Helvetica,16"
 set key font "Helvetica, 14" vertical Left left bottom reverse invert
-set yrange [0:12]
+set yrange [0:14]
 set xtics 64,128,1500
 set xrange [0:1600]
 # unset xtics 
@@ -101,7 +102,7 @@ plot "Vanilla-throughput-stats.dat" using ($1):($2/1000000000) with points ls 3 
 "PacketMill-throughput-stats.dat" using ($1):($2/1000000000) with points ls 5 title "PacketMill {/*0.8 (X-Change + Source-Code Optimizations)}",\
 "PacketMill-throughput-stats.dat" using ($1):($2/1000000000) with lines ls 5 dt 4 notitle;
 unset key 
-set yrange[0:13]
+set yrange[0:14]
 set ytics 0,3 font "Helvetica, 14"
 set xlabel "Packet Size (Bytes)" font "Helvetica,14"
 set ylabel "PPS (Million)" font "Helvetica,14"
