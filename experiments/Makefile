@@ -113,62 +113,54 @@ test_xchg_fwd_vec: deps-xchg
 	mkdir -p test_xchg_fwd_vec
 	mv packetmill-results* test_xchg_fwd_vec/
 
-# Metadata Management Comparisson - FastClick vs. L2FWD (with/without X-Change) 
+# Framework Comparisson - FastClick vs. L2FWD vs. PacketMill vs. BESS vs. VPP (with/without X-Change) - without vectorized PMD
 test_xchg_app: deps-xchg
 	npf-compare "local+dpdk,TARGET=fwd:L2fwd" "local+dpdk,TARGET=xchg:L2fwd-xchg" ${CPY_CLANG_REPO}+fwd:FastClick-Copying ${OVRLY_CLANG_REPO_STRIPPED}+fwd:FastClick-Light-Overlaying ${XCHG_CLANG_LTO_REPO}+fwd,xchg:PacketMill ${BESS_NOVEC_REPO}+bess:BESS ${VPP_REPO}+vpp:VPP --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc dpdkfixed --config graph_color={6,6,1,1,5,2,4} n_runs=${N_RUNS} ${NPF_INT_FLAGS} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables TOUCH=1 "GEN_LENGTH=[64-1500#128]"
 	rm -fr test_xchg_app/
 	mkdir -p test_xchg_app
 	mv packetmill-results* test_xchg_app/
 
+# Framework Comparisson - FastClick vs. L2FWD vs. PacketMill vs. BESS vs. VPP (with/without X-Change) - with vectorized PMD
 test_xchg_app_vec: deps-xchg
 	npf-compare "local+dpdk,TARGET=fwd:L2fwd" "local+dpdk,TARGET=xchg:L2fwd-xchg" ${CPY_CLANG_REPO}+fwd:FastClick-Copying ${OVRLY_CLANG_REPO_STRIPPED}+fwd:FastClick-Light-Overlaying ${XCHG_CLANG_LTO_REPO}+fwd,xchg:PacketMill ${BESS_REPO}+bess:BESS ${VPP_REPO}+vpp:VPP --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc dpdkfixed --config graph_color={6,6,1,1,5,2,4} n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} VEC=1 FREQ=1200 --variables TOUCH=1 "GEN_LENGTH=[64-1500#128]"
 	rm -fr test_xchg_app_vec/
 	mkdir -p test_xchg_app_vec
 	mv packetmill-results* test_xchg_app_vec/
 
+# Framework Comparisson - FastClick vs. PacketMill vs. BESS vs. VPP (with/without X-Change) - without vectorized PMD
 test_xchg_app_2: deps-xchg
 	npf-compare ${CPY_CLANG_REPO}+fwd:FastClick-Copying ${OVRLY_CLANG_REPO_STRIPPED}+fwd:FastClick-Light-Overlaying ${XCHG_CLANG_LTO_REPO}+fwd,xchg:PacketMill ${BESS_NOVEC_REPO}+bess:BESS ${VPP_REPO}+vpp:VPP --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc dpdkfixed --config graph_color={6,6,1,1,5,2,4} n_runs=${N_RUNS} ${NPF_INT_FLAGS} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables TOUCH=1 "GEN_LENGTH=[64-1500#128]"
 	rm -fr test_xchg_app_2/
 	mkdir -p test_xchg_app_2
 	mv packetmill-results* test_xchg_app_2/
 
+# Framework Comparisson - FastClick vs. PacketMill vs. BESS vs. VPP (with/without X-Change) - with vectorized PMD
 test_xchg_app_2_vec: deps-xchg
 	npf-compare ${CPY_CLANG_REPO}+fwd:FastClick-Copying ${OVRLY_CLANG_REPO_STRIPPED}+fwd:FastClick-Light-Overlaying ${XCHG_CLANG_LTO_REPO}+fwd,xchg:PacketMill ${BESS_REPO}+bess:BESS ${VPP_REPO}+vpp:VPP --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc dpdkfixed --config graph_color={6,6,1,1,5,2,4} n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} VEC=1 FREQ=1200 --variables TOUCH=1 "GEN_LENGTH=[64-1500#128]"
 	rm -fr test_xchg_app_2_vec/
 	mkdir -p test_xchg_app_2_vec
 	mv packetmill-results* test_xchg_app_2_vec/
 
-test_stripped: deps-xchg
-	npf-compare ${CPY_CLANG_REPO_STRIPPED}+fwd:FastClick-Light ${XCHG_CLANG_LTO_REPO_STRIPPED}+fwd,xchg:PacketMill-Light --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc dpdkfixed --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --tags novec --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables TOUCH=1 "GEN_LENGTH=[64-1500#128]"
-	rm -fr test_stripped/
-	mkdir -p test_stripped
-	mv packetmill-results* test_stripped/
-
+# Run BESS - FWD - with/without vectorized PMD
 test_bess: deps-xchg
 	npf-compare ${BESS_REPO}+bess:BESS ${BESS_NOVEC_REPO}+bess:BESS-NOVEC --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} VEC=0 FREQ=1200 GEN_LENGTH=[64*1500] --config graph_variables_as_series={TOUCH} ${NPF_INT_FLAGS}
 	rm -fr test_bess/
 	mkdir -p test_bess
 	mv packetmill-results* test_bess/
 
+# Run VPP - FWD - with/without vectorized PMD
 test_vpp: deps-xchg
 	npf-compare ${VPP_REPO}+vpp:VPP ${VPP_REPO}+vpp,novec:VPP-NOVEC --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags udpgen udp promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables "GEN_LENGTH=[64-1500#128]"
 	rm -fr test_vpp/
 	mkdir -p test_vpp
 	mv packetmill-results* test_vpp/
 
-# Metadata Management Comparisson (X-Change vs. Copying) - with/without vectorized PMD - Forwarding DPDK - single core
+# DPDK Forwarding Application - L2FWD - (X-Change vs. Copying) - without vectorized PMD - single core
 test_xchg_l2fwd_dpdk: deps-xchg
-	npf-compare fastclick --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udpgen udp dpdk promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH=[64-1500#128] 
+	npf-compare "local+dpdk,TARGET=fwd:L2fwd" "local+dpdk,TARGET=xchg:L2fwd-xchg" --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udpgen udp promisc dpdkfixed novec --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} VEC=0 FREQ=1200 --variables "GEN_LENGTH=[64-1500#128]"
 	rm -fr test_xchg_l2fwd_dpdk/
 	mkdir -p test_xchg_l2fwd_dpdk
 	mv packetmill-results* test_xchg_l2fwd_dpdk/
-
-# Metadata Management Comparisson (X-Change vs. Copying) - with/without vectorized PMD - Forwarding DPDK - Trace+freqtune - single core
-test_xchg_l2fwd_dpdk_freq: deps-xchg
-	npf-compare fastclick --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} freqtune dpdk promisc --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH}
-	rm -fr test_xchg_l2fwd_dpdk_freq/
-	mkdir -p test_xchg_l2fwd_dpdk_freq
-	mv packetmill-results* test_xchg_l2fwd_dpdk_freq/
 
 # Router Comparisson (Vanilla vs. PacketMill) - single core
 test_packetmill_router: deps-xchg

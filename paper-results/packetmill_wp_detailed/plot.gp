@@ -24,6 +24,23 @@ do for [k=1:5] { # N
 	# print sprintf("\n")
 }
 
+
+set print 'wp-lat99-improve-stats.dat'
+wp(n) = word("0 1 2 3 4 5", n) # Real values 1 4 8 12 16 20
+print sprintf("#%s %s %s %s", "N", "W", "S", "Throughput-median", "Throughput-Vanilla")
+do for [k=1:5] { # N
+	do for [i=1:6] { # W
+	    do for [j=1:21] { #S
+	    	z=(k-1)*126+(i-1)*21+j
+	        stats 'VanillaLAT99.csv' using z prefix "VA" nooutput
+	        stats 'PacketMillLAT99.csv' using z prefix "PM" nooutput
+	        print sprintf("%1.0f %s %1.0f %1.2f %1.2f %1.2f", k, wp(i), j-1, value( (PM_median - VA_median)*100/VA_median ), value(VA_median), value(PM_median))
+	    }
+	    print sprintf("")
+	}
+	# print sprintf("\n")
+}
+
 set print 'wp-llc-load-misses-improve-stats.dat'
 wp(n) = word("0 1 2 3 4 5", n) # Real values 1 4 8 12 16 20
 print sprintf("#%s %s %s %s", "N", "W", "S", "LLC-load-misses-avg-C0-median", "LLC-load-misses-avg-C0-Vanilla")
@@ -34,6 +51,25 @@ do for [k=1:5] { # N
 	        stats 'VanillaLLC-load-misses-avg-C0.csv' using z prefix "VALLC" nooutput
 	        stats 'PacketMillLLC-load-misses-avg-C0.csv' using z prefix "PMLLC" nooutput
 	        print sprintf("%1.0f %s %1.0f %1.2f %1.2f %1.2f", k, wp(i), j-1, value( (PMLLC_median - VALLC_median)*100/VALLC_median ), value(VALLC_median), value(PMLLC_median))
+	    }
+	    print sprintf("")
+	}
+	# print sprintf("\n")
+}
+
+
+set print 'wp-llc-load-misses-percent-improve-stats.dat'
+wp(n) = word("0 1 2 3 4 5", n) # Real values 1 4 8 12 16 20
+print sprintf("#%s %s %s %s", "N", "W", "S", "LLC-load-misses-avg-C0-median", "LLC-load-misses-avg-C0-Vanilla")
+do for [k=1:5] { # N
+	do for [i=1:6] { # W
+	    do for [j=1:21] { #S
+	    	z=(k-1)*126+(i-1)*21+j
+	        stats 'VanillaLLC-load-misses-avg-C0.csv' using z prefix "VALLC" nooutput
+	        stats 'VanillaLLC-loads-avg-C0.csv' using z prefix "VALLCLOADS" nooutput
+	        stats 'PacketMillLLC-load-misses-avg-C0.csv' using z prefix "PMLLC" nooutput
+	        stats 'PacketMillLLC-loads-avg-C0.csv' using z prefix "PMLLCLOADS" nooutput
+	        print sprintf("%1.0f %s %1.0f %1.2f %1.2f %1.2f", k, wp(i), j-1, value( (PMLLC_median - VALLC_median)*100/VALLC_median ), value(VALLC_median*100/VALLCLOADS_median), value(PMLLC_median*100/PMLLCLOADS_median))
 	    }
 	    print sprintf("")
 	}
@@ -179,7 +215,7 @@ set ztics 10,10,60 font "Helvetica, 12"
 
 
 # set offsets graph 0, 0, 0.05, 0.05 
-set grid
+set grid 
 set tics scale 0
 # set parametric
 unset key
@@ -221,9 +257,16 @@ set ticslevel 0.0
  unset hidden3d
  show hidden3d
 
+set grid ztics lt 0 lw 1.25
+
 splot 'wp-throughput-improve-stats.dat' using ($1==1?$2:NaN):3:4:5 w pm3d,\
-'wp-throughput-improve-stats.dat' using ($1==1?$2:NaN):3:4:5 w lines linecolor rgb 'black' lt 1 lw 1
-# 'wp-throughput-improve-stats.dat' using ($1==5?$2:NaN):3:4:5 w pm3d
+'wp-throughput-improve-stats.dat' using ($1==1?$2:NaN):3:4:5 w lines linecolor rgb 'black' lt 1 lw 1;
+
+set output "heat-3d-5APP.pdf"
+
+splot 'wp-throughput-improve-stats.dat' using ($1==5?$2:NaN):3:4:5 w pm3d,\
+'wp-throughput-improve-stats.dat' using ($1==5?$2:NaN):3:4:5 w lines linecolor rgb 'black' lt 1 lw 1
+
 
 yplane=14
 set xrange [0:5]
@@ -234,13 +277,12 @@ splot 'wp-throughput-improve-stats.dat' using ($1==1?$2:NaN):3:4:5 w pm3d notitl
 'wp-throughput-improve-stats.dat' using ($1==1?$2:NaN):3:4:5 w lines linecolor rgb 'black' lt 1 lw 1 notitle,\
 '+' u 0:(yplane):(20):(20) w zerrorfill lc rgb "#80ca0020" title sprintf("LLC Threshold (%i MB)", yplane),\
 'wp-throughput-improve-stats.dat' using ($1==1?$2:NaN):3:($3>yplane?$4:NaN):5 w pm3d notitle,\
-'wp-throughput-improve-stats.dat' using ($1==1?$2:NaN):3:($3>yplane?$4:NaN):5 w lines linecolor rgb 'black' lt 1 lw 1 notitle
+'wp-throughput-improve-stats.dat' using ($1==1?$2:NaN):3:($3>yplane?$4:NaN):5 w lines linecolor rgb 'black' lt 1 lw 1 notitle;
 
 
 
 splot 'wp-throughput-improve-stats.dat' using ($1==1?$2:NaN):3:4:5 w pm3d,\
-'wp-throughput-improve-stats.dat' using ($1==1?$2:NaN):3:4:5 w lines linecolor rgb 'black' lt 1 lw 1
-# 'wp-throughput-improve-stats.dat' using ($1==5?$2:NaN):3:4:5 w pm3d
+'wp-throughput-improve-stats.dat' using ($1==1?$2:NaN):3:4:5 w lines linecolor rgb 'black' lt 1 lw 1;
 
 llcloads(z)= z
 
@@ -257,13 +299,7 @@ splot "wp-llc-load-misses-improve-stats-3D.dat" using ($1==1?$2:NaN):3:4:(llcloa
 'wp-throughput-improve-stats.dat' using ($1==1?$2:NaN):3:($3>yplane?$4:NaN):5 w lines linecolor rgb 'black' lt 1 lw 1 notitle
 
 
-
-set output "heat-3d-5APP.pdf"
-
-splot 'wp-throughput-improve-stats.dat' using ($1==5?$2:NaN):3:4:5 w pm3d,\
-'wp-throughput-improve-stats.dat' using ($1==5?$2:NaN):3:4:5 w lines linecolor rgb 'black' lt 1 lw 1
-
-
+set grid ztics lt 0 lw 0.5
 
 set terminal pdf size 5,2.5
 
@@ -541,6 +577,423 @@ plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.da
 3,t lc rgb "red" lw 2 dt 2 title "All Inside LLC Threshold (3 MB)";
 unset multiplot
 
+
+set terminal pdf size 5,5
+#set title "N=1 (Number of Accesses per Packet) and W=4 (Compute-Intensiveness)"
+unset title
+set parametric
+set output "compute-fixed-N1-W4-mixed-packetmill.pdf" 
+set multiplot layout 3, 1
+set tmargin 2
+unset xlabel
+set key left invert
+set yrange[0:105]
+set xrange[-1:21]
+
+set xlabel "Memory Footprint\n{/*0.8 Size of the Accessed Memory (MB)}" font "Helvetica,12" offset 0,0
+set ylabel "Throughput (Gbps)" font "Helvetica,12" offset 0,0
+
+set ytics 0,20,100 font "Helvetica, 12" offset 0,0
+set xtics 0,1,20 font "Helvetica, 12" offset 0,0
+
+unset colorbox
+set key font "Helvetica, 12" vertical Left left bottom reverse invert
+
+unset xlabel
+
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with points ls 1 title "Vanilla (Copying)",\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with points ls 2 title "PacketMill (X-Change + Source-Code Optimizations)",\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with lines ls 2 dt 4 notitle; 
+unset key 
+
+unset title
+
+# set object 1 rectangle from 6,0 to 14,55 behind fillcolor rgb '#FFFFE0' fillstyle solid noborder
+# set label 1 at 10,20 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set object 2 rectangle from 14,0 to 21,85 behind fillcolor rgb '#FFE4E1' fillstyle solid noborder
+set label 2 at 17.75,20 center "DRAM" tc 'black' font "Helvetica-Bold, 16" front
+set label 3 at 8.5,20 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set key font "Helvetica, 12" vertical Left left top reverse invert
+set yrange[0:85]
+set trange [0:85]
+set ytics 0,10,85 font "Helvetica, 12" 
+set ylabel "LLC Load Misses (k)" font "Helvetica,12" offset 0,0
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-improve-stats.dat" using 1:($2/1000) with points ls 1 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-improve-stats.dat" using 1:($2/1000) with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-improve-stats.dat" using 1:($3/1000) with points ls 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-improve-stats.dat" using 1:($3/1000) with lines ls 2 dt 4 notitle,\
+14,t lc rgb "red" lw 2 dt 2 title "Out of LLC Threshold (14 MB)";
+
+unset object 1
+unset label 1
+unset object 2
+unset label 2
+set object 1 rectangle from 3,0 to 14,800 behind fillcolor rgb '#FFFFE0' fillstyle solid noborder
+set label 3 at 8.5,320 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set object 2 rectangle from 14,0 to 21,800 behind fillcolor rgb '#FFE4E1' fillstyle solid noborder
+set label 4 at 17.75,320 center "DRAM" tc 'black' font "Helvetica-Bold, 16" front
+set key font "Helvetica, 12" vertical Left center bottom reverse invert
+
+set ylabel "LLC Loads (k)" font "Helvetica,12" offset 0,0
+set yrange[0:800]
+set ytics 0,100,800 font "Helvetica, 12" 
+set xlabel "Memory Footprint\n{/*0.8 Size of the Accessed Memory (MB)}" font "Helvetica,12" offset 0,0
+set trange [0:800]
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($2/1000) with points ls 1 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($2/1000) with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($3/1000) with points ls 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($3/1000) with lines ls 2 dt 4 notitle,\
+3,t lc rgb "red" lw 2 dt 2 title "All Inside LLC Threshold (3 MB)";
+unset multiplot
+
+
+set terminal pdf size 5,5
+#set title "N=1 (Number of Accesses per Packet) and W=4 (Compute-Intensiveness)"
+unset title
+set parametric
+set output "compute-fixed-N1-W4-mixed-packetmill-percent.pdf" 
+set multiplot layout 3, 1
+set tmargin 2
+unset xlabel
+set key left invert
+set yrange[0:105]
+set xrange[-1:21]
+
+set xlabel "Memory Footprint\n{/*0.8 Size of the Accessed Memory (MB)}" font "Helvetica,12" offset 0,0
+set ylabel "Throughput (Gbps)" font "Helvetica,12" offset 0,0
+
+set ytics 0,20,100 font "Helvetica, 12" offset 0,0
+set xtics 0,1,20 font "Helvetica, 12" offset 0,0
+
+unset colorbox
+set key font "Helvetica, 12" vertical Left left bottom reverse invert
+
+unset xlabel
+
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with points ls 1 title "Vanilla (Copying)",\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with points ls 2 title "PacketMill (X-Change + Source-Code Optimizations)",\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with lines ls 2 dt 4 notitle; 
+unset key 
+
+unset title
+
+# set object 1 rectangle from 6,0 to 14,55 behind fillcolor rgb '#FFFFE0' fillstyle solid noborder
+# set label 1 at 10,20 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set object 2 rectangle from 14,0 to 21,15 behind fillcolor rgb '#FFE4E1' fillstyle solid noborder
+set label 2 at 17.75,7.5 center "DRAM" tc 'black' font "Helvetica-Bold, 16" front
+set label 3 at 8.5,7.5 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set key font "Helvetica, 12" vertical Left left top reverse invert
+set yrange[0:15]
+set trange [0:15]
+set ytics 0,5,15 font "Helvetica, 12" 
+set ylabel "LLC Load Misses (%)" font "Helvetica,12" offset 0,0
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-percent-improve-stats.dat" using 1:($2) with points ls 1 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-percent-improve-stats.dat" using 1:($2) with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-percent-improve-stats.dat" using 1:($3) with points ls 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-percent-improve-stats.dat" using 1:($3) with lines ls 2 dt 4 notitle,\
+14,t lc rgb "red" lw 2 dt 2 title "Out of LLC Threshold (14 MB)";
+
+unset object 1
+unset label 1
+unset object 2
+unset label 2
+set object 1 rectangle from 3,0 to 14,800 behind fillcolor rgb '#FFFFE0' fillstyle solid noborder
+set label 3 at 8.5,320 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set object 2 rectangle from 14,0 to 21,800 behind fillcolor rgb '#FFE4E1' fillstyle solid noborder
+set label 4 at 17.75,320 center "DRAM" tc 'black' font "Helvetica-Bold, 16" front
+set key font "Helvetica, 12" vertical Left center bottom reverse invert
+
+set ylabel "LLC Loads (k)" font "Helvetica,12" offset 0,0
+set yrange[0:800]
+set ytics 0,100,800 font "Helvetica, 12" 
+set xlabel "Memory Footprint\n{/*0.8 Size of the Accessed Memory (MB)}" font "Helvetica,12" offset 0,0
+set trange [0:800]
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($2/1000) with points ls 1 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($2/1000) with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($3/1000) with points ls 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($3/1000) with lines ls 2 dt 4 notitle,\
+3,t lc rgb "red" lw 2 dt 2 title "All Inside LLC Threshold (3 MB)";
+unset multiplot
+
+
+set terminal pdf size 5,5
+#set title "N=1 (Number of Accesses per Packet) and W=4 (Compute-Intensiveness)"
+unset title
+set parametric
+set output "compute-fixed-N5-W4-mixed-packetmill-percent.pdf" 
+set multiplot layout 3, 1
+set tmargin 2
+unset xlabel
+set key left invert
+set yrange[0:105]
+set xrange[-1:21]
+
+set xlabel "Memory Footprint\n{/*0.8 Size of the Accessed Memory (MB)}" font "Helvetica,12" offset 0,0
+set ylabel "Throughput (Gbps)" font "Helvetica,12" offset 0,0
+
+set ytics 0,20,100 font "Helvetica, 12" offset 0,0
+set xtics 0,1,20 font "Helvetica, 12" offset 0,0
+
+unset colorbox
+set key font "Helvetica, 12" vertical Left left bottom reverse invert
+
+unset xlabel
+
+plot "<awk '{if($1==5 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with points ls 1 title "Vanilla (Copying)",\
+"<awk '{if($1==5 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==5 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with points ls 2 title "PacketMill (X-Change + Source-Code Optimizations)",\
+"<awk '{if($1==5 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with lines ls 2 dt 4 notitle; 
+unset key 
+
+unset title
+
+# set object 1 rectangle from 6,0 to 14,55 behind fillcolor rgb '#FFFFE0' fillstyle solid noborder
+# set label 1 at 10,20 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set object 2 rectangle from 14,0 to 21,15 behind fillcolor rgb '#FFE4E1' fillstyle solid noborder
+set label 2 at 17.75,11 center "DRAM" tc 'black' font "Helvetica-Bold, 16" front
+set label 3 at 8.5,11 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set key font "Helvetica, 12" vertical Left left top reverse invert
+set yrange[0:15]
+set trange [0:15]
+set ytics 0,5,15 font "Helvetica, 12" 
+set ylabel "LLC Load Misses (%)" font "Helvetica,12" offset 0,0
+plot "<awk '{if($1==5 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-percent-improve-stats.dat" using 1:($2) with points ls 1 notitle,\
+"<awk '{if($1==5 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-percent-improve-stats.dat" using 1:($2) with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==5 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-percent-improve-stats.dat" using 1:($3) with points ls 2 notitle,\
+"<awk '{if($1==5 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-percent-improve-stats.dat" using 1:($3) with lines ls 2 dt 4 notitle,\
+14,t lc rgb "red" lw 2 dt 2 title "Out of LLC Threshold (14 MB)";
+
+unset object 1
+unset label 1
+unset object 2
+unset label 2
+set object 1 rectangle from 3,0 to 14,1800 behind fillcolor rgb '#FFFFE0' fillstyle solid noborder
+set label 3 at 8.5,900 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set object 2 rectangle from 14,0 to 21,1800 behind fillcolor rgb '#FFE4E1' fillstyle solid noborder
+set label 4 at 17.75,900 center "DRAM" tc 'black' font "Helvetica-Bold, 16" front
+set key font "Helvetica, 12" vertical Left center bottom reverse invert
+
+set ylabel "LLC Loads (k)" font "Helvetica,12" offset 0,0
+set yrange[0:1800]
+set ytics 0,300,1800 font "Helvetica, 12" 
+set xlabel "Memory Footprint\n{/*0.8 Size of the Accessed Memory (MB)}" font "Helvetica,12" offset 0,0
+set trange [0:1800]
+plot "<awk '{if($1==5 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($2/1000) with points ls 1 notitle,\
+"<awk '{if($1==5 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($2/1000) with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==5 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($3/1000) with points ls 2 notitle,\
+"<awk '{if($1==5 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($3/1000) with lines ls 2 dt 4 notitle,\
+3,t lc rgb "red" lw 2 dt 2 title "All Inside LLC Threshold (3 MB)";
+unset multiplot
+
+
+set terminal pdf size 5,6
+#set title "N=1 (Number of Accesses per Packet) and W=4 (Compute-Intensiveness)"
+unset title
+set parametric
+set output "compute-fixed-N1-W4-mixed-packetmill-w-lat99.pdf" 
+set multiplot layout 4, 1
+set tmargin 2
+unset xlabel
+set key left invert
+set yrange[0:105]
+set xrange[-1:21]
+
+set xlabel "Memory Footprint\n{/*0.8 Size of the Accessed Memory (MB)}" font "Helvetica,12" offset 0,0
+set ylabel "Throughput (Gbps)" font "Helvetica,12" offset 0,0
+
+set ytics 0,20,100 font "Helvetica, 12" offset 0,0
+set xtics 0,1,20 font "Helvetica, 12" offset 0,0
+
+unset colorbox
+set key font "Helvetica, 12" vertical Left left bottom reverse invert
+
+unset xlabel
+
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with points ls 1 title "Vanilla (Copying)",\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with points ls 2 title "PacketMill (X-Change + Source-Code Optimizations)",\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with lines ls 2 dt 4 notitle; 
+unset key 
+
+unset title
+
+set yrange[0:350]
+set ylabel "99^{th} Percentile Latency ({/Symbol m}s)" font "Helvetica,12" offset 0,0
+set ytics 0,100,350 font "Helvetica, 12" offset 0,0
+set xtics 0,1,20 font "Helvetica, 12" offset 0,0
+
+unset object 1
+unset label 3
+unset object 2
+unset label 4
+
+set object 1 rectangle from 3,0 to 14,350 behind fillcolor rgb '#FFFFE0' fillstyle solid noborder
+# set label 3 at 8.5,175 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set object 2 rectangle from 14,0 to 21,350 behind fillcolor rgb '#FFE4E1' fillstyle solid noborder
+# set label 4 at 17.75,175 center "DRAM" tc 'black' font "Helvetica-Bold, 16" front
+
+unset colorbox
+set key font "Helvetica, 12" vertical Left left bottom reverse invert
+
+unset xlabel
+
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-lat99-improve-stats.dat" using 1:2 with points ls 1 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-lat99-improve-stats.dat" using 1:2 with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-lat99-improve-stats.dat" using 1:3 with points ls 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-lat99-improve-stats.dat" using 1:3 with lines ls 2 dt 4 notitle; 
+
+# set object 1 rectangle from 6,0 to 14,55 behind fillcolor rgb '#FFFFE0' fillstyle solid noborder
+# set label 1 at 10,20 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set object 2 rectangle from 14,0 to 21,85 behind fillcolor rgb '#FFE4E1' fillstyle solid noborder
+set label 2 at 17.75,20 center "DRAM" tc 'black' font "Helvetica-Bold, 16" front
+set label 3 at 8.5,20 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set key font "Helvetica, 12" vertical Left left top reverse invert
+set yrange[0:85]
+set trange [0:85]
+set ytics 0,20,85 font "Helvetica, 12" 
+set ylabel "LLC Load Misses (k)" font "Helvetica,12" offset 0,0
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-improve-stats.dat" using 1:($2/1000) with points ls 1 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-improve-stats.dat" using 1:($2/1000) with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-improve-stats.dat" using 1:($3/1000) with points ls 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-improve-stats.dat" using 1:($3/1000) with lines ls 2 dt 4 notitle,\
+14,t lc rgb "red" lw 2 dt 2 title "Out of LLC Threshold (14 MB)";
+
+unset object 1
+unset label 1
+unset object 2
+unset label 2
+set object 1 rectangle from 3,0 to 14,800 behind fillcolor rgb '#FFFFE0' fillstyle solid noborder
+set label 3 at 8.5,320 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set object 2 rectangle from 14,0 to 21,800 behind fillcolor rgb '#FFE4E1' fillstyle solid noborder
+set label 4 at 17.75,320 center "DRAM" tc 'black' font "Helvetica-Bold, 16" front
+set key font "Helvetica, 12" vertical Left center bottom reverse invert
+
+set ylabel "LLC Loads (k)" font "Helvetica,12" offset 0,0
+set yrange[0:800]
+set ytics 0,200,800 font "Helvetica, 12" 
+set xlabel "Memory Footprint\n{/*0.8 Size of the Accessed Memory (MB)}" font "Helvetica,12" offset 0,0
+set trange [0:800]
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($2/1000) with points ls 1 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($2/1000) with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($3/1000) with points ls 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($3/1000) with lines ls 2 dt 4 notitle,\
+3,t lc rgb "red" lw 2 dt 2 title "All Inside LLC Threshold (3 MB)";
+unset multiplot
+
+
+
+set terminal pdf size 5,6
+#set title "N=1 (Number of Accesses per Packet) and W=4 (Compute-Intensiveness)"
+unset title
+set parametric
+set output "compute-fixed-N1-W4-mixed-packetmill-w-lat99-percent.pdf" 
+set multiplot layout 4, 1
+set tmargin 2
+unset xlabel
+set key left invert
+set yrange[0:105]
+set xrange[-1:21]
+
+set xlabel "Memory Footprint\n{/*0.8 Size of the Accessed Memory (MB)}" font "Helvetica,12" offset 0,0
+set ylabel "Throughput (Gbps)" font "Helvetica,12" offset 0,0
+
+set ytics 0,20,100 font "Helvetica, 12" offset 0,0
+set xtics 0,1,20 font "Helvetica, 12" offset 0,0
+
+unset colorbox
+set key font "Helvetica, 12" vertical Left left bottom reverse invert
+
+unset xlabel
+
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with points ls 1 title "Vanilla (Copying)",\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:2 with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with points ls 2 title "PacketMill (X-Change + Source-Code Optimizations)",\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-throughput-improve-stats.dat" using 1:3 with lines ls 2 dt 4 notitle; 
+unset key 
+
+unset title
+
+set yrange[0:350]
+set ylabel "99^{th} Percentile Latency ({/Symbol m}s)" font "Helvetica,12" offset 0,0
+set ytics 0,100,350 font "Helvetica, 12" offset 0,0
+set xtics 0,1,20 font "Helvetica, 12" offset 0,0
+
+unset object 1
+unset label 3
+unset object 2
+unset label 4
+
+set object 1 rectangle from 3,0 to 14,350 behind fillcolor rgb '#FFFFE0' fillstyle solid noborder
+# set label 3 at 8.5,175 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set object 2 rectangle from 14,0 to 21,350 behind fillcolor rgb '#FFE4E1' fillstyle solid noborder
+# set label 4 at 17.75,175 center "DRAM" tc 'black' font "Helvetica-Bold, 16" front
+
+unset colorbox
+set key font "Helvetica, 12" vertical Left left bottom reverse invert
+
+unset xlabel
+
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-lat99-improve-stats.dat" using 1:2 with points ls 1 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-lat99-improve-stats.dat" using 1:2 with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-lat99-improve-stats.dat" using 1:3 with points ls 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-lat99-improve-stats.dat" using 1:3 with lines ls 2 dt 4 notitle; 
+
+# set object 1 rectangle from 6,0 to 14,55 behind fillcolor rgb '#FFFFE0' fillstyle solid noborder
+# set label 1 at 10,20 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set object 2 rectangle from 14,0 to 21,15 behind fillcolor rgb '#FFE4E1' fillstyle solid noborder
+set label 2 at 17.75,7.5 center "DRAM" tc 'black' font "Helvetica-Bold, 16" front
+set label 3 at 8.5,7.5 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set key font "Helvetica, 12" vertical Left left top reverse invert
+set yrange[0:15]
+set trange [0:15]
+set ytics 0,5,15 font "Helvetica, 12" 
+set ylabel "LLC Load Misses (%)" font "Helvetica,12" offset 0,0
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-percent-improve-stats.dat" using 1:($2) with points ls 1 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-percent-improve-stats.dat" using 1:($2) with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-percent-improve-stats.dat" using 1:($3) with points ls 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-load-misses-percent-improve-stats.dat" using 1:($3) with lines ls 2 dt 4 notitle,\
+14,t lc rgb "red" lw 2 dt 2 title "Out of LLC Threshold (14 MB)";
+
+unset object 1
+unset label 1
+unset object 2
+unset label 2
+set object 1 rectangle from 3,0 to 14,800 behind fillcolor rgb '#FFFFE0' fillstyle solid noborder
+set label 3 at 8.5,320 center "LLC" tc 'black' font "Helvetica-Bold, 16" front
+
+set object 2 rectangle from 14,0 to 21,800 behind fillcolor rgb '#FFE4E1' fillstyle solid noborder
+set label 4 at 17.75,320 center "DRAM" tc 'black' font "Helvetica-Bold, 16" front
+set key font "Helvetica, 12" vertical Left center bottom reverse invert
+
+set ylabel "LLC Loads (k)" font "Helvetica,12" offset 0,0
+set yrange[0:800]
+set ytics 0,200,800 font "Helvetica, 12" 
+set xlabel "Memory Footprint\n{/*0.8 Size of the Accessed Memory (MB)}" font "Helvetica,12" offset 0,0
+set trange [0:800]
+plot "<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($2/1000) with points ls 1 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($2/1000) with lines ls 1 dt 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($3/1000) with points ls 2 notitle,\
+"<awk '{if($1==1 && $2==1){print $3,$5,$6;}}' wp-llc-loads-improve-stats.dat" using 1:($3/1000) with lines ls 2 dt 4 notitle,\
+3,t lc rgb "red" lw 2 dt 2 title "All Inside LLC Threshold (3 MB)";
+unset multiplot
 
 
 set terminal pdf size 5,2.5

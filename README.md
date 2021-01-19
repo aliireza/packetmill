@@ -102,7 +102,7 @@ export RTE_SDK=/home/alireza/packetmill/dpdk/
 export RTE_TARGET=x86_64-native-linux-gcc
 ```
 
-**Make sure to set `RTE_SDK` and `XCHG_SDK` based on the location of `dpdk` and `xchange` directories.**
+**Make sure to define `RTE_SDK` and `XCHG_SDK` based on the location of `dpdk` and `xchange` directories.**
 
 
 **Note that `NPF` requires all three builds to perform the experiments. It uses `gcc` build (of DPDK v20.02) for packet generation (i.e., default case) and the other two (i.e., X-Change with `clanglto` and DPDK v20.02 with `clang`) for other scenarios at the server side.**

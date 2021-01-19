@@ -104,6 +104,45 @@ For more information, please check [clang user manual][clang-pgo] and autofdo [r
 
 - **Comparisson:** You can use `make test_bolt_pgo` to compare the performance of vanilla FastClick with different optimized versions. 
 
+### BESS
+
+You can use `make test_bess` to run [BESS][bess-page] with one core when it forwards fixed-size packets. Before trying it, make sure to install the BESS dependencies, as follows:
+
+```bash
+sudo apt-get install -y python python-pip libgraph-easy-perl
+pip install --user protobuf grpcio scapy
+```
+
+
+For more information, please refer to [BESS README][bess-readme]. 
+
+
+### VPP
+
+You can use `make test_vpp` to run [VPP][vpp-page] with one core when it forwards fixed-size packets. Before trying it, make sure to install VPP once, as follows:
+
+```bash
+git clone https://github.com/FDio/vpp.git
+cd vpp
+git checkout v20.05
+make install-dep
+make dpdk-install-dev DPDK_MLX5_PMD=y DPDK_MLX5_PMD_DLOPEN_DEPS=y
+make build-release vpp_uses_dpdk_mlx5_pmd=yes DPDK_MLX5_PMD_DLOPEN_DEPS=y
+```
+
+For more information, please refer to [VPP README][vpp-readme]. 
+
+
+### X-Change Examples (l2fwd-xchg)
+
+We developed a sample application, called `l2fwd-xchg`, for DPDK to support X-Change, which is a modified version of the L2 forwarding sample application ([l2fwd][l2fwd-page]). In this example, the metadata is reduced to two simple fields (i.e., the buffer address and packet length) instead of the 128-B `rte_mbuf`. You can use `make test_xchg_l2fwd_dpdk` to compare `l2fwd` with `l2fwd-xchg`. Make sure to build them before running the test. To do so, you have to go to the `xchange/examples/l2fwd/` and ``xchange/examples/l2fwd-xchg/`directories and run `make`.
+
+**Make sure to define `RTE_SDK` and `RTE_TARGET` to X-Change path before running `make`. You have to revert them back to the previous values according to the [main README][main-readme-xchg].**
+
+
+### Compare Packet Processing Frameworks
+
+You can run `make test_xchg_app` to compare the performance of l2fwd, l2fwd-xchg, FastClick, PacketMill, BESS and VPP. Note that this test disables vectorized PMD.
 
 [packetmill-paper]: https://people.kth.se/~farshin/documents/packetmill-asplos21.pdf
 [bolt-repo]: https://github.com/facebookincubator/BOLT
@@ -111,3 +150,9 @@ For more information, please check [clang user manual][clang-pgo] and autofdo [r
 [clang-pgo]: https://clang.llvm.org/docs/UsersManual.html#profile-guided-optimization
 [autofdo-repo]: https://github.com/google/autofdo
 [workpackage-cc]: https://github.com/tbarbette/fastclick//blob/master/elements/research/workpackage.cc
+[bess-page]: http://span.cs.berkeley.edu/bess.html
+[bess-readme]: https://github.com/NetSys/bess/blob/master/README.md
+[vpp-page]: https://fd.io/vppproject/vpptech/
+[vpp-readme]: https://github.com/FDio/vpp/blob/master/README.md
+[l2fwd-page]: https://doc.dpdk.org/guides/sample_app_ug/l2_forward_real_virtual.html
+[main-readme-xchg]: https://github.com/aliireza/packetmill/blob/master/README.md#x-change-modified-dpdk-and-normal-dpdk
