@@ -251,11 +251,15 @@ If you use PacketMill or X-Change in any context, please cite our [paper][packet
 author = {Farshin, Alireza and Barbette, Tom and Roozbeh, Amir and {Maguire Jr.}, Gerald Q. and Kosti\'{c}, Dejan},
 title = {PacketMill: Toward per-core 100-Gbps Networking},
 year = {2021},
+isbn = {9781450383172},
 publisher = {Association for Computing Machinery},
 address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3445814.3446724},
+doi = {10.1145/3445814.3446724},
 booktitle = {Proceedings of the Twenty-Sixth International Conference on Architectural Support for Programming Languages and Operating Systems},
-keywords = {Packet Processing, Metadata Management, PacketMill, X-Change, 100 Gbps, Network Function Virtualization (NFV), Click, DPDK, Link-Time Optimization (LTO), LLVM},
-location = {Virtual},
+numpages = {17},
+keywords = {PacketMill, X-Change, Packet Processing, Metadata Management, 100-Gbps Networking, Middleboxes, Commodity Hardware, Compiler Optimizations, FastClick, DPDK, LLVM},
+location = {Virtual, USA},
 series = {ASPLOS '21}
 }
 ```
