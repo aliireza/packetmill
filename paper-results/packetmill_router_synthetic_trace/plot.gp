@@ -92,6 +92,7 @@ set key font "Helvetica, 12" vertical Left right bottom reverse invert
 set output 'throughput-pps-bar.pdf'
 set multiplot layout 2, 1
 set tmargin 0.6
+set lmargin at screen 0.14
 unset xlabel
 # set key left invert
 set yrange[0:105]
