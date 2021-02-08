@@ -65,7 +65,7 @@ To emulate the behavior of more memory- and compute-intensive functions, you can
 Our testie file also contains the workflow to reorder `Packet` data structure based on the binary access pattern, i.e., tracking and changing `GEPI` instruction in either `click` or `embedclick` binaries. To try it out, you can use `make test_llvm_pass_router`.
 
 
-### Porfile-Guided Optimization (PGO) + BOLT Binary Optimizer
+### Profile-Guided Optimization (PGO) + BOLT Binary Optimizer
 
 - **BOLT:** You can use `make test_bolt` or `make test_compare_bolt`  to apply BOLT binary optimizer to FastClick. To use BOLT, you need to prepare your testbed as follows:
 
