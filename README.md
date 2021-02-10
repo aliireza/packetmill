@@ -19,10 +19,7 @@ the information defining a NF (i.e., Click configuration file) to mitigate virtu
 1. **IR-based modifications:** implemented as LLVM optimization passes applied to the complete program’s IR bitcode
 as extracted from Link-Time Optimization (LTO), which reoders the commonly used data structures (i.e., ***Packet*** class in FastClick).
 
-For more information, please refer to PacketMill's [paper][packetmill-paper].
-
-
-**We are currently working on the camera-ready version of PacketMill paper, but you can check out our submitted [extended abstract][packetmill-extended-abstract] to [ASPLOS'21][asplos21-page].**
+For more information, please refer to PacketMill's [paper][packetmill-paper]. You can also check out our submitted [extended abstract][packetmill-extended-abstract] to [ASPLOS'21][asplos21-page].
 
 ## Applicability
 
