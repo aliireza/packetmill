@@ -42,7 +42,7 @@ struct ClassPoolInlinePass : public ModulePass {
           F.removeFnAttr(llvm::Attribute::OptimizeNone);
           change = true;
         }
-        if (F.hasFnAttribute(llvm::Attribute::AlwaysInline)) {
+        if (!F.hasFnAttribute(llvm::Attribute::AlwaysInline)) {
           errs() << "Adding alwaysinline attribute...\n";
           F.addFnAttr(llvm::Attribute::AlwaysInline);
           change = true;
