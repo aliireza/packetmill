@@ -227,7 +227,7 @@ echo "Click path is $FASTCLICK_PATH"
 
 BIN=click
 
-if [ $DEVIRTUALIZE -eq 1 -o $MINDRIVER -eq 1 ] ; then
+if [ $DEVIRTUALIZE -eq 1 -o $MINDRIVER -eq 1 -o $PACKETMILL_CMD -eq 1 ] ; then
     pushd ${FASTCLICK_PATH}
         sudo make clean-embed
         echo "Uninstalling.."
@@ -340,8 +340,6 @@ if [ $OPT -eq 1 ] ; then
     popd
 fi
 
-echo "EVENT COMPILED"
-
 // Setting RTE_SDK
 export RTE_SDK=$XCHG_PATH
 export XCHG_SDK=$XCHG_PATH
@@ -355,6 +353,10 @@ if [ $BOLT -eq 1 ] ; then
     echo "EVENT COMPILED"
     echo "Launching $BIN.bolt at ${FASTCLICK_PATH} with config $CFG in $(pwd)"
     $GDB ${FASTCLICK_PATH}/userlevel/$BIN.bolt --dpdk -w ${dut:0:pci}${MLX_OPT} -w ${dut:2:pci}${MLX_OPT} -l 0-$(( $DPDK_CPU - 1 )) -- $CFG
+elif [ $PACKETMILL_CMD -eq 1 ] ; then
+    BIN=packetmill
+    echo "Launching $BIN at ${FASTCLICK_PATH} with config $CFG in $(pwd)"
+    $GDB $PERF ${FASTCLICK_PATH}/userlevel/$BIN --dpdk -w ${dut:0:pci}${MLX_OPT} $(( "-w ${dut:2:pci}${MLX_OPT}" if $dualNIC else "" )) -l 0-$(( $DPDK_CPU - 1 )) -- $CFG
 else
     echo "EVENT COMPILED"
     echo "Launching $BIN at ${FASTCLICK_PATH} with config $CFG in $(pwd)"

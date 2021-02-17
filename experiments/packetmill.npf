@@ -49,6 +49,8 @@ norand:RAND_SEED=0
 norand:RAND_MAX=0
 ids:CHKSUM=0
 BOLT=0
+LTOOPT=0
+PACKETMILL_CMD=0
 
 // BESS variables
 bess:TOUCH=1

@@ -218,6 +218,13 @@ test_llvm_pass_xchg:
 	mkdir -p test_llvm_pass_xchg
 	mv packetmill-results* test_llvm_pass_xchg/
 
+# packetmill.cc
+test_packetmill_cmd:
+	npf-compare ${XCHG_CLANG_LTO_NOPOOL_REPO}+packetmill:packetmill-cmd --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp udpgen novec --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64} FREQ=3000
+	rm -fr test_llvm_pass_xchg/
+	mkdir -p test_llvm_pass_xchg
+	mv packetmill-results* test_llvm_pass_xchg/
+
 # Compare Vanilla FastClick vs. BOLT vs. PGO (clang)
 test_bolt_pgo: perf.data.bolt code.prof deps
 	export PROFILE_PATH=${PROFILE_PATH}
