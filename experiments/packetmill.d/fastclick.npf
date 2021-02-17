@@ -314,12 +314,19 @@ if [ $OPT -eq 1 ] ; then
     echo "Making LLVM pass..."
     pushd ${FASTCLICK_PATH}
     pushd userlevel
-    llvm-dis ${BIN}.0.5.precodegen.bc -o ${BIN}.ll
+    if [ $LTOOPT -eq 1 ] ; then
+        llvm-dis ${BIN}.0.5.precodegen.bc -o ${BIN}.ll
+    else
+        llvm-dis ${BIN}.0.0.preopt.bc -o ${BIN}.ll
+    fi
     if [ $OPT_STRIP -eq 1 ] ; then
         opt -S -load ${LLVM_PASS_PATH}/build/class-stripmoduleflags-pass/libClassStripModuleFlagsPass.so -strip-module-flags ${BIN}.ll -o ${BIN}.ll
     fi
     if [ $OPT_PICK -eq 1 ] ; then
         opt -S -load ${LLVM_PASS_PATH}/build/class-handpick-pass/libClassHandpickPass.so -handpick-packet-class ${BIN}.ll -o ${BIN}.ll
+    fi
+    if [ $OPT_POOL_INLINE -eq 1 ] ; then
+        opt -S -load ${LLVM_PASS_PATH}/build/class-pool-inline-pass/libClassPoolInlinePass.so  -inline-pool ${BIN}.ll -o ${BIN}.ll
     fi
     opt -S -O3 ${BIN}.ll -o ${BIN}.ll
     if [ $EMBED -eq 1 ] ; then

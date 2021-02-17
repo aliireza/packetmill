@@ -182,35 +182,30 @@ embedding:JMPS=0
 
 // LLVM pass for click binary
 
-clickopt:REPLACE=0
-clickopt:DEVIRTUALIZE=0
-clickopt:INLINE=0
-clickopt:EMBED=0
-clickopt:MINDRIVER=0
 clickopt:OPT=1
 clickopt:OPT_PICK=1
 clickopt:OPT_STRIP=1
-clickopt:STATIC=0
-clickopt:UNROLL=0
-clickopt:UNROLL_FACTOR=0
-clickopt:SWITCH=0
-clickopt:JMPS=0
+clickopt:LTOOPT=1
+clickopt:OPT_POOL_INLINE=1
 
-// LLVM pass for embedclick binary
+clickoptO3:OPT=1
+clickoptO3:OPT_PICK=0
+clickoptO3:OPT_STRIP=1
+clickoptO3:LTOOPT=1
+clickoptO3:OPT_POOL_INLINE=1
 
-deviropt:REPLACE=0
-deviropt:DEVIRTUALIZE=1
-deviropt:INLINE=0
-deviropt:EMBED=1
-deviropt:MINDRIVER=1
-deviropt:OPT=1
-deviropt:OPT_PICK=1
-deviropt:OPT_STRIP=1
-deviropt:STATIC=0
-deviropt:UNROLL=0
-deviropt:UNROLL_FACTOR=0
-deviropt:SWITCH=0
-deviropt:JMPS=0
+packetmill:PACKETMILL_CMD=1
+packetmill:REPLACE=0
+packetmill:DEVIRTUALIZE=0
+packetmill:INLINE=0
+packetmill:EMBED=0
+packetmill:MINDRIVER=0
+packetmill:OPT=0
+packetmill:STATIC=0
+packetmill:UNROLL=0
+packetmill:UNROLL_FACTOR=0
+packetmill:SWITCH=0
+packetmill:JMPS=0
 
 //Vectorized or not
 -novec:VEC=1

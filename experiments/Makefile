@@ -43,6 +43,7 @@ CPY_CLANG_LTO_REPO=packetmill-clang-flto-cpy
 OVRLY_CLANG_LTO_REPO=packetmill-clang-flto-ovrly
 INSIDE_CLANG_LTO_REPO=packetmill-clang-flto-inside
 XCHG_CLANG_LTO_REPO=packetmill-clang-flto-xchg
+XCHG_CLANG_LTO_NOPOOL_REPO=packetmill-clang-flto-xchg-no-pool
 XCHG_CLANG_LTO_REPO_STRIPPED=packetmill-clang-flto-xchg-stripped
 CLANG_PGO_REPO=packetmill-clang-cpy-pgo
 CLANG_PGO_PROFILE_REPO=packetmill-clang-cpy-pgo-profile
@@ -209,6 +210,13 @@ test_sourcecode_router: deps
 	rm -fr test_sourcecode_router/
 	mkdir -p test_sourcecode_router
 	mv packetmill-results* test_sourcecode_router/
+
+# X-Change + LLVM
+test_llvm_pass_xchg:
+	npf-compare ${XCHG_CLANG_LTO_REPO}+embedding,xchg:EMBED+O3 ${XCHG_CLANG_LTO_NOPOOL_REPO}+embedding,xchg,clickopt:EMBED+Reorder --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp udpgen novec --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} GEN_LENGTH={64,512} FREQ=3000
+	rm -fr test_llvm_pass_xchg/
+	mkdir -p test_llvm_pass_xchg
+	mv packetmill-results* test_llvm_pass_xchg/
 
 # Compare Vanilla FastClick vs. BOLT vs. PGO (clang)
 test_bolt_pgo: perf.data.bolt code.prof deps
