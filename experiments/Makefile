@@ -220,7 +220,7 @@ test_llvm_pass_xchg:
 
 # packetmill.cc vs. Vanilla - Router
 test_packetmill_cmd_router:
-	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_NOPOOL_REPO}+packetmill:packetmill-cmd --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp udpgen novec --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH}  GEN_LENGTH=[64-1500#128]
+	npf-compare ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_NOPOOL_REPO}+packetmill,xchg:packetmill-cmd+XCHG ${XCHG_CLANG_LTO_NOPOOL_REPO}+packetmill,xchg:packetmill-cmd-NOXCHG  --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp udpgen novec --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH}  GEN_LENGTH=[64-1500#128]
 	rm -fr test_packetmill_cmd_router/
 	mkdir -p test_packetmill_cmd_router
 	mv packetmill-results* test_packetmill_cmd_router/
