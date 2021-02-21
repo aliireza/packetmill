@@ -66,6 +66,20 @@ private:
     std::string str;
 
     std::vector<uint64_t> accessed_indices;
+    bool found_AllAnno = false;
+
+    /* Check whether AllAnno exsits or not */
+    for (auto ST : M.getIdentifiedStructTypes()) {
+      if (ST->getName() == structName) {
+        found_AllAnno = true;
+      }
+    }
+
+    if (!found_AllAnno) {
+      errs() << "IR does not have AllAnno struct!\n"
+             << "Skipping AllAnno reordering!\n";
+      return false;
+    }
 
     /* Check the arguments */
     if (ElementListFilename != "-") {
