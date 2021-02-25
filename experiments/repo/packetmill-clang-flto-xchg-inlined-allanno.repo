@@ -1,0 +1,3 @@
+parent=packetmill-clang-flto-xchg
+name=PacketMill (clang) - LTO - X-Change Enabled - No Pool Inilining - Inlined AllAnno
+configure+= --disable-pool-inlining --enable-inlined-allanno

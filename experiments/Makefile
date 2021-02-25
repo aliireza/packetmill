@@ -44,6 +44,7 @@ OVRLY_CLANG_LTO_REPO=packetmill-clang-flto-ovrly
 INSIDE_CLANG_LTO_REPO=packetmill-clang-flto-inside
 XCHG_CLANG_LTO_REPO=packetmill-clang-flto-xchg
 XCHG_CLANG_LTO_NOPOOL_REPO=packetmill-clang-flto-xchg-no-pool
+XCHG_CLANG_LTO_INLINED_ALLANNO_REPO=packetmill-clang-flto-xchg-inlined-allanno
 XCHG_CLANG_LTO_REPO_STRIPPED=packetmill-clang-flto-xchg-stripped
 CLANG_PGO_REPO=packetmill-clang-cpy-pgo
 CLANG_PGO_PROFILE_REPO=packetmill-clang-cpy-pgo-profile
@@ -218,9 +219,9 @@ test_llvm_pass_xchg:
 	mkdir -p test_llvm_pass_xchg
 	mv packetmill-results* test_llvm_pass_xchg/
 
-# packetmill.cc vs. Vanilla - Router
+# packetmill.cc with/without AllAnno - Router
 test_packetmill_cmd_router:
-	npf-compare ${XCHG_CLANG_LTO_REPO}+embedding,xchg:EMBED+XCHG ${XCHG_CLANG_LTO_NOPOOL_REPO}+packetmill,xchg:packetmill-cmd+XCHG --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} udp udpgen novec --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH}  GEN_LENGTH=[64-1500#128]
+	npf-compare  ${XCHG_CLANG_LTO_INLINED_ALLANNO_REPO}+packetmill,xchg:packetmill-cmd+allanno ${XCHG_CLANG_LTO_NOPOOL_REPO}+packetmill,xchg:packetmill-cmd --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} novec freqtune --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} 
 	rm -fr test_packetmill_cmd_router/
 	mkdir -p test_packetmill_cmd_router
 	mv packetmill-results* test_packetmill_cmd_router/
