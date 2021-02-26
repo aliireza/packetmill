@@ -226,6 +226,13 @@ test_packetmill_cmd_router:
 	mkdir -p test_packetmill_cmd_router
 	mv packetmill-results* test_packetmill_cmd_router/
 
+# Vanilla vs. PacketMill (Individual Impacts)
+test_packetmill_indiv_router:
+	npf-compare  ${CPY_CLANG_REPO}+vanilla:Vanilla ${XCHG_CLANG_LTO_REPO}+packetmill:Embedding ${XCHG_CLANG_LTO_REPO}+vanilla,xchg:X-Change  ${XCHG_CLANG_LTO_NOPOOL_REPO}+packetmill,xchg:PacketMill ${XCHG_CLANG_LTO_INLINED_ALLANNO_REPO}+packetmill,xchg:PacketMill+allanno --testie packetmill.npf --cluster ${NPF_CLUSTER} --tags ${CASE} novec freqtune --config n_runs=${N_RUNS} ${NPF_INT_FLAGS} --variable ${TOOLS_PATH} 
+	rm -fr test_packetmill_indiv_router/
+	mkdir -p test_packetmill_indiv_router
+	mv packetmill-results* test_packetmill_indiv_router/
+
 # Compare Vanilla FastClick vs. BOLT vs. PGO (clang)
 test_bolt_pgo: perf.data.bolt code.prof deps
 	export PROFILE_PATH=${PROFILE_PATH}
