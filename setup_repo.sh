@@ -2,14 +2,14 @@
 
 # Clone and Compile X-Change
 setup_xchange () {
-  git clone git@github.com:tbarbette/xchange.git || (cd xchange ; git pull)
+  git clone https://github.com/tbarbette/xchange.git || (cd xchange ; git pull)
   rm -fr x86_64-native-linux-*
   make install T=x86_64-native-linux-clanglto
 }
 
 # Clone and Compile DPDK v20.02
 setup_dpdk () {
-  git clone git@github.com:tbarbette/xchange.git dpdk || (cd dpdk ; git pull)
+  git clone https://github.com/tbarbette/xchange.git dpdk || (cd dpdk ; git pull)
   git checkout v20.02
   rm -fr x86_64-native-linux-*
   make install T=x86_64-native-linux-gcc

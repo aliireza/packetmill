@@ -61,7 +61,7 @@ You can install `npf` via the following command:
 python3 -m pip install --user npf
 ```
 
-**Do not forget to add `export PATH=$PATH:~/.local/bin` to `~/.bashrc` or `~/.zshrc`. Otherwise, you can run `npf-compare` and `npf-run` commands.** 
+**Do not forget to add `export PATH=$PATH:~/.local/bin` to `~/.bashrc` or `~/.zshrc`. Otherwise, you cannot run `npf-compare` and `npf-run` commands.** 
 
 NPF will look for `cluster/` and `repo/` in your current working/testie directory. We have included the required `repo` for our experiments and a sample `cluster` template, available at `experiment/`. To setup your cluster, please check the [guidelines][npf-setup] for our previous paper. Additionally, you can check the [NPF README][npf-readme] file.
 
@@ -70,7 +70,7 @@ NPF will look for `cluster/` and `repo/` in your current working/testie director
 To build X-Change with clang (LTO), you can run the following commands:
 
 ```bash
-git clone git@github.com:tbarbette/xchange.git
+git clone https://github.com/tbarbette/xchange.git
 cd xchange
 make install T=x86_64-native-linux-clanglto
 ```
@@ -85,7 +85,7 @@ export XCHG_TARGET=x86_64-native-linux-clanglto
 We also use normal DPDK v20.02 in some scenarios. To build it, you can run the following commands:
 
 ```bash
-git clone git@github.com:tbarbette/xchange.git dpdk
+git clone https://github.com/tbarbette/xchange.git dpdk
 cd dpdk
 git checkout v20.02
 make install T=x86_64-native-linux-gcc
@@ -131,7 +131,7 @@ git clone https://github.com/andikleen/pmu-tools.git
 NPF automatically clone and build FastClick for the experiments (based on the testie/npf file), but if you want to compile/build it manually with X-Change repo. You can run the following commands:
 
 ```bash
-git clone --branch packetmill git@github.com:tbarbette/fastclick.git
+git clone --branch packetmill https://github.com/tbarbette/fastclick.git
 cd fastclick
 ./configure --disable-linuxmodule --enable-userlevel --enable-user-multithread --enable-etherswitch --disable-dynamic-linking --enable-local --enable-dpdk=$XCHG_SDK --enable-research --disable-task-stats --enable-flow --enable-cpu-load --prefix $(pwd)/build/ --enable-intel-cpu --enable-dpdk-pool --enable-rand-align RTE_TARGET=x86_64-native-linux-clanglto CXX="clang++ -flto -fno-access-control" CC="clang -flto" CXXFLAGS="-std=gnu++14 -O3" LDFLAGS="-flto -fuse-ld=lld -Wl,-plugin-opt=save-temps" RANLIB="/bin/true" LD="ld.lld" READELF="llvm-readelf" AR="llvm-ar" --disable-bound-port-transfer --enable-dpdk-pool --enable-dpdk-xchg --disable-dpdk-packet --disable-dpdk-softqueue
 make
