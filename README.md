@@ -246,18 +246,20 @@ If you use PacketMill or X-Change in any context, please cite our [paper][packet
 ```bibtex
 @inproceedings{farshin-packetmill,
 author = {Farshin, Alireza and Barbette, Tom and Roozbeh, Amir and {Maguire Jr.}, Gerald Q. and Kosti\'{c}, Dejan},
-title = {PacketMill: Toward per-core 100-Gbps Networking},
+title = {{PacketMill: Toward per-Core 100-Gbps Networking}},
 year = {2021},
 isbn = {9781450383172},
 publisher = {Association for Computing Machinery},
 address = {New York, NY, USA},
 url = {https://doi.org/10.1145/3445814.3446724},
 doi = {10.1145/3445814.3446724},
-booktitle = {Proceedings of the Twenty-Sixth International Conference on Architectural Support for Programming Languages and Operating Systems},
+abstract = {We present PacketMill, a system for optimizing software packet processing, which (i) introduces a new model to efficiently manage packet metadata and (ii) employs code-optimization techniques to better utilize commodity hardware. PacketMill grinds the whole packet processing stack, from the high-level network function configuration file to the low-level userspace network (specifically DPDK) drivers, to mitigate inefficiencies and produce a customized binary for a given network function. Our evaluation results show that PacketMill increases throughput (up to 36.4 Gbps -- 70%) & reduces latency (up to 101 us -- 28%) and enables nontrivial packet processing (e.g., router) at ~100 Gbps, when new packets arrive >10\texttimes{} faster than main memory access times, while using only one processing core.},
+booktitle = {Proceedings of the 26th ACM International Conference on Architectural Support for Programming Languages and Operating Systems},
+pages = {1–17},
 numpages = {17},
-keywords = {PacketMill, X-Change, Packet Processing, Metadata Management, 100-Gbps Networking, Middleboxes, Commodity Hardware, Compiler Optimizations, FastClick, DPDK, LLVM},
+keywords = {DPDK, Full-Stack Optimization, FastClick, 100-Gbps Networking, Packet Processing, Commodity Hardware, PacketMill, Compiler Optimizations, LLVM, Metadata Management, Middleboxes, X-Change},
 location = {Virtual, USA},
-series = {ASPLOS '21}
+series = {ASPLOS 2021}
 }
 ```
 
